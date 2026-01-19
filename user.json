@@ -30,6 +30,40 @@
         "action": "connexion",
         "date": "2026-01-19T18:25:35.858Z",
         "details": "Connexion réussie"
+      },
+      {
+        "action": "connexion",
+        "date": "2026-01-19T18:29:00.736Z",
+        "details": "Connexion réussie"
+      },
+      {
+        "action": "modification",
+        "date": "2026-01-19T18:29:14.898Z",
+        "details": "A créé le compte test"
+      }
+    ]
+  },
+  {
+    "username": "test",
+    "password": "1",
+    "role": "user",
+    "perms": {
+      "power": false,
+      "console": false,
+      "files": true,
+      "users": false,
+      "logs": false
+    },
+    "logs": [
+      {
+        "action": "compte_cree",
+        "date": "2026-01-19T18:29:14.898Z",
+        "details": "Création du compte"
+      },
+      {
+        "action": "connexion",
+        "date": "2026-01-19T18:29:28.608Z",
+        "details": "Connexion réussie"
       }
     ]
   }
