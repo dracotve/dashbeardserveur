@@ -3,25 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Draco Panel - Cloud Sync</title>
+    <title>Draco Core - Panel d'administration</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.0/lucide.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #1a1a1a;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #3b82f6;
+            border-radius: 4px;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
     </style>
 </head>
-<body class="bg-gray-950 text-gray-100 font-sans">
-
-    <div id="login-screen" class="min-h-screen flex items-center justify-center p-4 bg-black">
-        <div class="bg-gray-900 w-full max-w-md rounded-2xl border border-blue-500/30 shadow-2xl p-8 border-t-4 border-t-blue-600">
-            <h1 class="text-3xl font-black text-center mb-8 tracking-tighter italic">DRACO PANEL</h1>
+<body class="bg-gray-950 text-white min-h-screen">
+    <div id="login-screen" class="min-h-screen flex items-center justify-center p-4">
+        <div class="bg-gray-900 border border-gray-800 p-8 rounded-2xl shadow-2xl w-full max-w-md">
+            <div class="text-center mb-8">
+                <div class="bg-blue-600 p-3 rounded-xl inline-block mb-4">
+                    <i data-lucide="shield" class="w-8 h-8 text-white"></i>
+                </div>
+                <h1 class="text-2xl font-black mb-2">Draco <span class="text-blue-500">Core</span></h1>
+                <p class="text-gray-400 text-sm">Connectez-vous pour accéder au panneau</p>
+            </div>
+            
             <div class="space-y-4">
-                <input type="text" id="login-user" placeholder="Nom d'utilisateur" class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 text-white">
-                <input type="password" id="login-pass" placeholder="Mot de passe" class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 text-white">
-                <button onclick="handleAuth()" class="w-full bg-blue-600 hover:bg-blue-500 py-3 rounded-xl font-bold transition transform active:scale-95 shadow-lg">CONNEXION</button>
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1">Nom d'utilisateur</label>
+                    <input type="text" id="login-user" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-blue-500 transition-colors" placeholder="Votre nom d'utilisateur">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1">Mot de passe</label>
+                    <input type="password" id="login-pass" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-blue-500 transition-colors" placeholder="Votre mot de passe">
+                </div>
+                <button onclick="handleAuth()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-4 rounded-lg transition-colors flex items-center justify-center">
+                    <i data-lucide="log-in" class="w-4 h-4 mr-2"></i> Se connecter
+                </button>
             </div>
         </div>
     </div>
@@ -34,8 +61,8 @@
             </div>
             <div class="flex items-center space-x-6">
                 <div id="power-controls" class="hidden flex space-x-2">
-                    <button class="bg-green-600 hover:bg-green-500 p-2 rounded-lg transition"><i data-lucide="play" class="w-4 h-4 text-white"></i></button>
-                    <button class="bg-red-600 hover:bg-red-500 p-2 rounded-lg transition"><i data-lucide="square" class="w-4 h-4 text-white"></i></button>
+                    <button onclick="pteroPower('start')" class="bg-green-600 hover:bg-green-500 p-2 rounded-lg transition"><i data-lucide="play" class="w-4 h-4 text-white"></i></button>
+                    <button onclick="pteroPower('stop')" class="bg-red-600 hover:bg-red-500 p-2 rounded-lg transition"><i data-lucide="square" class="w-4 h-4 text-white"></i></button>
                 </div>
                 <div class="text-right">
                     <p id="nav-role" class="text-[9px] text-blue-500 font-bold uppercase tracking-widest"></p>
@@ -64,6 +91,80 @@
                         <p class="text-2xl font-black">STABLE (CLOUD)</p>
                     </div>
                 </div>
+
+                <div id="ptero-stats" class="mt-6 bg-gray-900 border border-gray-800 p-6 rounded-2xl shadow-lg hidden">
+                    <p class="text-gray-500 text-[10px] font-bold mb-4 uppercase">Pterodactyl</p>
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <div class="bg-black/30 border border-gray-800 rounded-xl p-4">
+                            <div class="text-gray-400 text-xs uppercase font-bold mb-1">État</div>
+                            <div id="ptero-state" class="font-black">-</div>
+                        </div>
+                        <div class="bg-black/30 border border-gray-800 rounded-xl p-4">
+                            <div class="text-gray-400 text-xs uppercase font-bold mb-1">Uptime</div>
+                            <div id="ptero-uptime" class="font-black">-</div>
+                        </div>
+                        <div class="bg-black/30 border border-gray-800 rounded-xl p-4">
+                            <div class="text-gray-400 text-xs uppercase font-bold mb-1">CPU</div>
+                            <div id="ptero-cpu" class="font-black">-</div>
+                        </div>
+                        <div class="bg-black/30 border border-gray-800 rounded-xl p-4">
+                            <div class="text-gray-400 text-xs uppercase font-bold mb-1">RAM</div>
+                            <div id="ptero-mem" class="font-black">-</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-console" class="tab-content space-y-6">
+                <div class="bg-gray-900 border border-gray-800 p-6 rounded-2xl shadow-xl">
+                    <h2 class="font-black mb-4 flex items-center text-blue-400 uppercase tracking-tighter"><i data-lucide="terminal" class="mr-2 w-5 h-5"></i> Console</h2>
+                    <div class="bg-black/50 p-4 rounded-lg font-mono text-sm h-64 overflow-y-auto mb-4">
+                        <div class="text-green-400">$ Bienvenue sur la console</div>
+                        <div class="text-gray-500">Tapez 'help' pour voir les commandes disponibles</div>
+                        <div id="console-output" class="mt-2 space-y-1"></div>
+                        <div class="flex items-center mt-2">
+                            <span class="text-green-400 mr-2">$</span>
+                            <input type="text" id="console-input" class="bg-transparent border-0 outline-none flex-1 text-white" placeholder="Entrez une commande...">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-files" class="tab-content space-y-6">
+                <div class="bg-gray-900 border border-gray-800 p-6 rounded-2xl shadow-xl">
+                    <h2 class="font-black mb-4 flex items-center text-blue-400 uppercase tracking-tighter"><i data-lucide="folder" class="mr-2 w-5 h-5"></i> Gestion des Fichiers</h2>
+                    <div class="bg-black/50 p-4 rounded-lg">
+                        <div class="flex justify-between items-center mb-4">
+                            <div class="flex space-x-2">
+                                <button class="bg-blue-600 hover:bg-blue-500 px-3 py-1 rounded text-sm flex items-center">
+                                    <i data-lucide="upload" class="w-4 h-4 mr-1"></i> Téléverser
+                                </button>
+                                <button class="bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded text-sm flex items-center">
+                                    <i data-lucide="folder-plus" class="w-4 h-4 mr-1"></i> Nouveau Dossier
+                                </button>
+                            </div>
+                            <div class="relative">
+                                <input type="text" placeholder="Rechercher..." class="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1 pl-8 text-sm w-64 focus:outline-none focus:border-blue-500">
+                                <i data-lucide="search" class="absolute left-2.5 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                            </div>
+                        </div>
+                        <div class="border border-gray-800 rounded-lg overflow-hidden">
+                            <table class="w-full text-sm">
+                                <thead class="bg-gray-800/50">
+                                    <tr>
+                                        <th class="text-left py-2 px-4 font-medium text-gray-400">Nom</th>
+                                        <th class="text-left py-2 px-4 font-medium text-gray-400">Taille</th>
+                                        <th class="text-left py-2 px-4 font-medium text-gray-400">Modifié le</th>
+                                        <th class="text-right py-2 px-4 font-medium text-gray-400">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="files-list" class="divide-y divide-gray-800">
+                                    <!-- Les fichiers seront ajoutés ici dynamiquement -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div id="tab-users" class="tab-content space-y-6">
@@ -72,62 +173,115 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                         <input type="text" id="new-user" placeholder="Nom d'utilisateur" class="bg-gray-800 border border-gray-700 p-3 rounded-xl outline-none text-white focus:border-blue-500">
                         <input type="password" id="new-pass" placeholder="Mot de passe" class="bg-gray-800 border border-gray-700 p-3 rounded-xl outline-none text-white focus:border-blue-500">
-                        <select id="new-role" onchange="adaptPermsToRole()" class="bg-gray-800 border border-gray-700 p-3 rounded-xl outline-none text-blue-400 font-bold">
+                        <select id="new-role" onchange="adaptPermsToRole()" class="bg-gray-800 border border-gray-700 p-3 rounded-xl outline-none text-white focus:border-blue-500">
                             <option value="admin">Administrateur</option>
                             <option value="dev">Développeur</option>
-                            <option value="rh">RH (Création Invités)</option>
-                            <option value="guest">Invité</option>
+                            <option value="mod">Modérateur</option>
+                            <option value="user">Utilisateur</option>
                         </select>
                     </div>
-                    <div id="perm-container" class="bg-black/50 p-4 rounded-xl grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 border border-gray-800">
-                        <label class="flex items-center space-x-2 text-[10px] uppercase font-bold text-gray-400 cursor-pointer"><input type="checkbox" id="p-power" class="w-4 h-4"> <span>Power Control</span></label>
-                        <label class="flex items-center space-x-2 text-[10px] uppercase font-bold text-gray-400 cursor-pointer"><input type="checkbox" id="p-console" class="w-4 h-4"> <span>Console</span></label>
-                        <label class="flex items-center space-x-2 text-[10px] uppercase font-bold text-gray-400 cursor-pointer"><input type="checkbox" id="p-files" class="w-4 h-4"> <span>Fichiers</span></label>
-                        <label class="flex items-center space-x-2 text-[10px] uppercase font-bold text-gray-400 cursor-pointer"><input type="checkbox" id="p-users" class="w-4 h-4"> <span>Gestion Users</span></label>
-                    </div>
-                    <button onclick="createUser()" class="bg-blue-600 hover:bg-blue-500 w-full py-4 rounded-xl font-black uppercase tracking-widest transition">ENREGISTRER</button>
-                </div>
 
-                <div class="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden shadow-2xl">
-                    <table class="w-full text-left text-sm">
-                        <thead class="bg-black text-[10px] text-gray-500 uppercase tracking-[0.2em] border-b border-gray-800">
-                            <tr>
-                                <th class="px-6 py-5">Utilisateur</th>
-                                <th class="px-6 py-5">Rôle</th>
-                                <th class="px-6 py-5">Mot de Passe</th>
-                                <th class="px-6 py-5 text-right">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="user-table-body" class="divide-y divide-gray-800"></tbody>
-                    </table>
+                    <div id="perm-container" class="bg-black/50 p-4 rounded-xl grid grid-cols-2 md:grid-cols-5 gap-4 mb-6 border border-gray-800">
+                        <label class="flex items-center space-x-2 text-[10px] uppercase font-bold text-gray-400 cursor-pointer">
+                            <input type="checkbox" id="p-power" class="w-4 h-4"> <span>Power</span>
+                        </label>
+                        <label class="flex items-center space-x-2 text-[10px] uppercase font-bold text-gray-400 cursor-pointer">
+                            <input type="checkbox" id="p-console" class="w-4 h-4"> <span>Console</span>
+                        </label>
+                        <label class="flex items-center space-x-2 text-[10px] uppercase font-bold text-gray-400 cursor-pointer">
+                            <input type="checkbox" id="p-files" class="w-4 h-4"> <span>Fichiers</span>
+                        </label>
+                        <label class="flex items-center space-x-2 text-[10px] uppercase font-bold text-gray-400 cursor-pointer">
+                            <input type="checkbox" id="p-users" class="w-4 h-4"> <span>Utilisateurs</span>
+                        </label>
+                        <label class="flex items-center space-x-2 text-[10px] uppercase font-bold text-gray-400 cursor-pointer">
+                            <input type="checkbox" id="p-logs" class="w-4 h-4"> <span>Logs</span>
+                        </label>
+                    </div>
+
+                    <button onclick="createUser()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-6 rounded-xl transition-colors flex items-center">
+                        <i data-lucide="user-plus" class="w-4 h-4 mr-2"></i> Créer l'utilisateur
+                    </button>
+
+                    <div class="mt-8">
+                        <h2 class="font-black mb-4 flex items-center text-blue-400 uppercase tracking-tighter"><i data-lucide="users" class="mr-2 w-5 h-5"></i> Liste des utilisateurs</h2>
+                        <div class="bg-black/50 border border-gray-800 rounded-xl overflow-hidden">
+                            <table class="w-full text-sm">
+                                <thead class="bg-gray-800/50">
+                                    <tr>
+                                        <th class="text-left py-3 px-6 font-medium text-gray-400">Utilisateur</th>
+                                        <th class="text-left py-3 px-6 font-medium text-gray-400">Rôle</th>
+                                        <th class="text-left py-3 px-6 font-medium text-gray-400">Mot de passe</th>
+                                        <th class="text-right py-3 px-6 font-medium text-gray-400">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="user-table-body" class="divide-y divide-gray-800">
+                                    <!-- Les utilisateurs seront ajoutés ici dynamiquement -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
-            
-            <div id="tab-console" class="tab-content"><div class="bg-black p-4 rounded-xl font-mono text-green-500 border border-gray-800 h-64 italic">Initialisation...</div></div>
-            <div id="tab-files" class="tab-content"><div class="bg-gray-900 p-8 border border-gray-800 rounded-xl text-center text-gray-500 italic">Explorateur distant...</div></div>
-            <!-- Section Logs Serveur -->
-            <div id="tab-server-logs" class="tab-content p-6">
-                <div class="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden shadow-2xl">
-                    <div class="p-4 border-b border-gray-800 flex justify-between items-center">
-                        <h2 class="text-lg font-bold">Journaux du serveur</h2>
+
+            <div id="tab-server-logs" class="tab-content space-y-6">
+                <div class="bg-gray-900 border border-gray-800 p-6 rounded-2xl shadow-xl">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="font-black flex items-center text-blue-400 uppercase tracking-tighter">
+                            <i data-lucide="server" class="mr-2 w-5 h-5"></i> Logs du Serveur
+                        </h2>
                         <div class="flex space-x-2">
-                            <button onclick="refreshServerLogs()" class="p-2 text-blue-400 hover:bg-gray-800 rounded-lg" title="Rafraîchir">
-                                <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                            <button onclick="refreshServerLogs()" class="bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded text-sm flex items-center">
+                                <i data-lucide="refresh-cw" class="w-4 h-4 mr-1"></i> Actualiser
                             </button>
-                            <button onclick="clearServerLogs()" class="p-2 text-red-400 hover:bg-gray-800 rounded-lg" title="Effacer les logs">
-                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            <button onclick="clearServerLogs()" class="bg-red-600 hover:bg-red-500 px-3 py-1 rounded text-sm flex items-center">
+                                <i data-lucide="trash-2" class="w-4 h-4 mr-1"></i> Effacer
                             </button>
                         </div>
                     </div>
-                    <div id="server-logs-container" class="font-mono text-sm h-[calc(100vh-250px)] overflow-y-auto p-4 space-y-2">
-                        <!-- Les logs seront affichés ici -->
+                    
+                    <div class="bg-black/50 border border-gray-800 rounded-lg p-4 h-[500px] overflow-y-auto">
+                        <div id="server-logs-container" class="space-y-2">
+                            <!-- Les logs seront ajoutés ici dynamiquement -->
+                        </div>
                     </div>
                 </div>
             </div>
         </main>
+
+        <footer class="bg-gray-900 border-t border-gray-800 py-3 px-6 text-center text-xs text-gray-500">
+            <p>Draco Core Panel v1.0.0 &copy; 2024 - Tous droits réservés</p>
+        </footer>
     </div>
 
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Modale de modification d'utilisateur -->
+    <div id="edit-user-modal" class="fixed inset-0 bg-black/80 flex items-center justify-center z-50 hidden">
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-6 w-full max-w-md">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-lg">Modifier l'utilisateur</h3>
+                <button onclick="closeEditModal()" class="text-gray-400 hover:text-white">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <input type="hidden" id="edit-username">
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1">Nouveau nom d'utilisateur</label>
+                    <input type="text" id="edit-new-username" class="w-full bg-gray-800 border border-gray-700 p-2 rounded-lg">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1">Nouveau mot de passe (laisser vide pour ne pas changer)</label>
+                    <input type="password" id="edit-new-password" class="w-full bg-gray-800 border border-gray-700 p-2 rounded-lg">
+                </div>
+                <div class="pt-2">
+                    <button onclick="updateUser()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-lg transition-colors">
+                        Enregistrer les modifications
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="server.js"></script>
 </body>
 </html>

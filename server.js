@@ -1,6 +1,169 @@
 // --- GESTION DE LA BASE DE DONNÉES ---
 const STORAGE_KEY = 'draco_permanent_storage_v1';
 
+const USERS_API_BASE_URL = 'http://localhost:3001';
+
+async function pteroFetchResources() {
+    try {
+        const res = await fetch(`${USERS_API_BASE_URL}/ptero/resources`, { cache: 'no-store' });
+        if (!res.ok) return null;
+        return await res.json();
+    } catch (_) {
+        return null;
+    }
+}
+
+async function pteroPower(signal) {
+    const role = document.getElementById('nav-role')?.textContent;
+    const isFounder = role === 'founder';
+    const users = loadDB();
+    const me = users.find(u => u.username === document.getElementById('nav-username')?.textContent);
+    const canPower = isFounder || me?.perms?.power;
+    if (!canPower) {
+        alert('Action non autorisée');
+        return;
+    }
+
+    try {
+        const res = await fetch(`${USERS_API_BASE_URL}/ptero/power`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ signal })
+        });
+        if (!res.ok) {
+            const msg = await res.text();
+            alert(`Erreur Pterodactyl: ${msg}`);
+            return;
+        }
+
+        addServerLog(LOG_TYPES.USER_ACTION, `Commande Pterodactyl: ${signal}`, document.getElementById('nav-username')?.textContent);
+        await refreshPteroStats();
+    } catch (e) {
+        alert(`Erreur réseau Pterodactyl: ${String(e?.message || e)}`);
+    }
+}
+
+function formatBytes(bytes) {
+    if (bytes == null || isNaN(bytes)) return '-';
+    const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+    let i = 0;
+    let num = Number(bytes);
+    while (num >= 1024 && i < sizes.length - 1) {
+        num /= 1024;
+        i++;
+    }
+    return `${num.toFixed(i === 0 ? 0 : 1)} ${sizes[i]}`;
+}
+
+function formatUptime(ms) {
+    if (ms == null || isNaN(ms)) return '-';
+    const totalSeconds = Math.floor(Number(ms) / 1000);
+    const days = Math.floor(totalSeconds / 86400);
+    const hours = Math.floor((totalSeconds % 86400) / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    if (days > 0) return `${days}j ${hours}h ${minutes}m`;
+    if (hours > 0) return `${hours}h ${minutes}m`;
+    return `${minutes}m`;
+}
+
+async function refreshPteroStats() {
+    const wrap = document.getElementById('ptero-stats');
+    if (!wrap) return;
+
+    const data = await pteroFetchResources();
+    if (!data || !data.attributes) {
+        wrap.classList.add('hidden');
+        return;
+    }
+
+    const attrs = data.attributes;
+    const state = attrs.current_state || '-';
+    const cpu = attrs.resources?.cpu_absolute;
+    const memBytes = attrs.resources?.memory_bytes;
+    const uptime = attrs.resources?.uptime;
+
+    document.getElementById('ptero-state').textContent = String(state);
+    document.getElementById('ptero-uptime').textContent = formatUptime(uptime);
+    document.getElementById('ptero-cpu').textContent = cpu == null ? '-' : `${Number(cpu).toFixed(2)}%`;
+    document.getElementById('ptero-mem').textContent = formatBytes(memBytes);
+    wrap.classList.remove('hidden');
+}
+
+async function pteroListFiles(dir = '/') {
+    try {
+        const res = await fetch(`${USERS_API_BASE_URL}/ptero/files/list?dir=${encodeURIComponent(dir)}`, { cache: 'no-store' });
+        if (!res.ok) return null;
+        return await res.json();
+    } catch (_) {
+        return null;
+    }
+}
+
+async function refreshPteroFiles(dir = '/') {
+    const role = document.getElementById('nav-role')?.textContent;
+    const isFounder = role === 'founder';
+    const users = loadDB();
+    const me = users.find(u => u.username === document.getElementById('nav-username')?.textContent);
+    const canFiles = isFounder || me?.perms?.files;
+    if (!canFiles) return;
+
+    const tbody = document.getElementById('files-list');
+    if (!tbody) return;
+
+    const data = await pteroListFiles(dir);
+    const list = data?.data;
+    if (!Array.isArray(list)) {
+        tbody.innerHTML = '';
+        return;
+    }
+
+    tbody.innerHTML = '';
+    list.forEach(item => {
+        const a = item?.attributes;
+        if (!a) return;
+
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-gray-800/50';
+
+        const size = a.is_file ? formatBytes(a.size) : '-';
+        const modified = a.modified_at ? new Date(a.modified_at).toLocaleString() : '-';
+
+        tr.innerHTML = `
+            <td class="py-2 px-4 text-gray-200">${a.name}</td>
+            <td class="py-2 px-4 text-gray-400">${size}</td>
+            <td class="py-2 px-4 text-gray-400">${modified}</td>
+            <td class="py-2 px-4 text-right text-gray-500">${a.is_file ? 'Fichier' : 'Dossier'}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+    lucide.createIcons();
+}
+
+async function syncUsersFromServer() {
+    try {
+        const res = await fetch(`${USERS_API_BASE_URL}/users`, { cache: 'no-store' });
+        if (!res.ok) return false;
+        const users = await res.json();
+        if (!Array.isArray(users)) return false;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
+        return true;
+    } catch (_) {
+        return false;
+    }
+}
+
+function syncUsersToServer(users) {
+    try {
+        fetch(`${USERS_API_BASE_URL}/users/save`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(users)
+        }).catch(() => {});
+    } catch (_) {
+        // ignore
+    }
+}
+
 function loadDB() {
     // Essayer de charger depuis le localStorage
     const storedData = localStorage.getItem(STORAGE_KEY);
@@ -21,7 +184,8 @@ function loadDB() {
                     "power": true,
                     "console": true,
                     "files": true,
-                    "users": true
+                    "users": true,
+                    "logs": true
                 },
                 "logs": [{
                     "action": "compte_cree",
@@ -42,12 +206,17 @@ function loadDB() {
 
 function saveDB(users) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
+    syncUsersToServer(users);
 }
 
 // --- AUTHENTIFICATION ---
-function handleAuth() {
+async function handleAuth() {
     const username = document.getElementById('login-user').value.trim();
     const password = document.getElementById('login-pass').value;
+
+    // Tentative de synchronisation depuis user.json avant de vérifier les identifiants
+    await syncUsersFromServer();
+
     const users = loadDB();
     
     const user = users.find(u => u.username === username && u.password === password);
@@ -114,7 +283,7 @@ function openDashboard(user) {
     }
     
     // Onglet Logs Serveur (uniquement pour les fondateurs)
-    if (user.role === 'founder') {
+    if (user.role === 'founder' || user.perms?.logs) {
         document.getElementById('nav-server-logs')?.classList.remove('hidden');
     }
     
@@ -137,7 +306,8 @@ function adaptPermsToRole() {
         document.getElementById('p-power'),
         document.getElementById('p-console'),
         document.getElementById('p-files'),
-        document.getElementById('p-users')
+        document.getElementById('p-users'),
+        document.getElementById('p-logs')
     ];
 
     // Réinitialiser toutes les cases
@@ -150,6 +320,7 @@ function adaptPermsToRole() {
             checks[1].checked = true; // console
             checks[2].checked = true; // files
             checks[3].checked = true; // users
+            checks[4].checked = true; // logs
             break;
         case 'dev':
             checks[0].checked = true; // power
@@ -198,7 +369,8 @@ function createUser() {
             power: document.getElementById('p-power').checked,
             console: document.getElementById('p-console').checked,
             files: document.getElementById('p-files').checked,
-            users: document.getElementById('p-users').checked
+            users: document.getElementById('p-users').checked,
+            logs: document.getElementById('p-logs')?.checked || false
         },
         logs: [{
             action: 'compte_cree',
@@ -521,6 +693,12 @@ function showTab(tabId, event) {
             console.log('Rafraîchissement des logs serveur...');
             displayServerLogs();
             break;
+        case 'tab-stats':
+            refreshPteroStats();
+            break;
+        case 'tab-files':
+            refreshPteroFiles('/');
+            break;
             
         case 'tab-users':
             console.log('Rafraîchissement du tableau des utilisateurs...');
@@ -656,4 +834,6 @@ function updateUser(oldUsername) {
 }
 
 // Initialisation
-lucide.createIcons();
+syncUsersFromServer().finally(() => {
+    lucide.createIcons();
+});
