@@ -1,0 +1,13 @@
+[
+  {
+    "username": "draco_tve",
+    "password": "1234",
+    "role": "founder",
+    "perms": {
+      "power": true,
+      "console": true,
+      "files": true,
+      "users": true
+    }
+  }
+]

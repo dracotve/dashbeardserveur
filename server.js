@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Draco Panel - Cloud Sync</title>
+    <title>Draco Panel - Permanent Storage</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.0/lucide.min.css" rel="stylesheet">
     <style>
@@ -49,16 +49,17 @@
             <button onclick="showTab('tab-stats')" class="tab-btn py-4 border-b-2 border-blue-500 text-blue-500">Stats</button>
             <button id="nav-console" onclick="showTab('tab-console')" class="tab-btn py-4 border-b-2 border-transparent text-gray-500 hidden">Console</button>
             <button id="nav-files" onclick="showTab('tab-files')" class="tab-btn py-4 border-b-2 border-transparent text-gray-500 hidden">Fichiers</button>
-            <button id="nav-users" onclick="showTab('tab-users')" class="tab-btn py-4 border-b-2 border-transparent text-gray-500 hidden">Utilisateurs</button>
+            <button id="nav-users" onclick="showTab('tab-users')" class="tab-btn py-4 border-b-2 border-transparent text-gray-500 hidden font-bold">Utilisateurs</button>
         </nav>
 
         <main class="p-6 flex-1 overflow-y-auto custom-scrollbar">
+            
             <div id="tab-stats" class="tab-content active">
                 <div class="bg-gray-900 border border-gray-800 p-6 rounded-2xl max-w-sm shadow-lg">
                     <p class="text-gray-500 text-[10px] font-bold mb-2 uppercase">Statut Système</p>
                     <div class="flex items-center text-green-500">
                         <span class="w-3 h-3 bg-green-500 rounded-full mr-3 animate-pulse"></span>
-                        <p class="text-2xl font-black">STABLE (CLOUD)</p>
+                        <p class="text-2xl font-black">STABLE</p>
                     </div>
                 </div>
             </div>
@@ -76,6 +77,7 @@
                             <option value="guest">Invité</option>
                         </select>
                     </div>
+                    
                     <div id="perm-container" class="bg-black/50 p-4 rounded-xl grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 border border-gray-800">
                         <label class="flex items-center space-x-2 text-[10px] uppercase font-bold text-gray-400 cursor-pointer"><input type="checkbox" id="p-power" class="w-4 h-4"> <span>Power Control</span></label>
                         <label class="flex items-center space-x-2 text-[10px] uppercase font-bold text-gray-400 cursor-pointer"><input type="checkbox" id="p-console" class="w-4 h-4"> <span>Console</span></label>
@@ -99,41 +101,44 @@
                     </table>
                 </div>
             </div>
-            
-            <div id="tab-console" class="tab-content"><div class="bg-black p-4 rounded-xl font-mono text-green-500 border border-gray-800 h-64 italic">Initialisation...</div></div>
-            <div id="tab-files" class="tab-content"><div class="bg-gray-900 p-8 border border-gray-800 rounded-xl text-center text-gray-500 italic">Explorateur distant...</div></div>
+
+            <div id="tab-console" class="tab-content"><div class="bg-black p-4 rounded-xl font-mono text-green-500 border border-gray-800 h-64 italic">Initialisation de la console...</div></div>
+            <div id="tab-files" class="tab-content"><div class="bg-gray-900 p-8 border border-gray-800 rounded-xl text-center text-gray-500 italic">Explorateur de fichiers prêt.</div></div>
         </main>
     </div>
 
     <script src="https://unpkg.com/lucide@latest"></script>
     <script>
-        const API_URL = 'http://localhost:3000/users'; // URL de ton serveur Node.js
+        // --- CLÉ DE STOCKAGE UNIQUE (NE JAMAIS CHANGER) ---
+        const STORAGE_KEY = 'draco_permanent_storage_v1';
+
+        // --- GESTION DE LA BASE DE DONNÉES ---
+        function loadDB() {
+            const data = localStorage.getItem(STORAGE_KEY);
+            if (!data) {
+                const defaultUsers = [{
+                    username: 'draco_tve',
+                    password: '1234',
+                    role: 'founder',
+                    perms: { power: true, console: true, files: true, users: true }
+                }];
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultUsers));
+                return defaultUsers;
+            }
+            return JSON.parse(data);
+        }
+
+        function saveDB(users) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
+        }
+
         let session = null;
 
-        // --- CHARGEMENT DEPUIS LE SERVEUR ---
-        async function loadDB() {
-            try {
-                const res = await fetch(API_URL);
-                return await res.json();
-            } catch (e) {
-                console.error("Erreur serveur:", e);
-                return [];
-            }
-        }
-
-        async function saveDB(users) {
-            await fetch(API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(users)
-            });
-        }
-
         // --- AUTHENTIFICATION ---
-        async function handleAuth() {
+        function handleAuth() {
             const uInput = document.getElementById('login-user').value.trim();
             const pInput = document.getElementById('login-pass').value.trim();
-            const users = await loadDB();
+            const users = loadDB();
             
             const match = users.find(u => u.username === uInput && u.password === pInput);
 
@@ -145,7 +150,7 @@
             }
         }
 
-        async function openDashboard() {
+        function openDashboard() {
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('panel').classList.remove('hidden');
             document.getElementById('nav-username').innerText = session.username;
@@ -154,23 +159,41 @@
             const p = session.perms;
             const r = session.role;
 
+            // Affichage selon permissions
             if(p.power || r === 'founder') document.getElementById('power-controls').classList.remove('hidden');
             if(p.console || r === 'founder') document.getElementById('nav-console').classList.remove('hidden');
             if(p.files || r === 'founder') document.getElementById('nav-files').classList.remove('hidden');
             if(p.users || r === 'founder') document.getElementById('nav-users').classList.remove('hidden');
 
+            adaptPermsToRole();
             renderTable();
             lucide.createIcons();
         }
 
-        async function createUser() {
+        // --- RESTRICTIONS RH ---
+        function adaptPermsToRole() {
+            const roleSelect = document.getElementById('new-role');
+            const checks = document.querySelectorAll('#perm-container input');
+
+            if (session.role === 'rh') {
+                roleSelect.value = 'guest';
+                roleSelect.disabled = true;
+                checks.forEach(c => { c.checked = false; c.disabled = true; });
+            } else {
+                roleSelect.disabled = false;
+                checks.forEach(c => c.disabled = false);
+            }
+        }
+
+        // --- GESTION UTILISATEURS ---
+        function createUser() {
             const name = document.getElementById('new-user').value.trim();
             const pass = document.getElementById('new-pass').value.trim();
             const role = document.getElementById('new-role').value;
 
             if (!name || !pass) return alert("Champs vides.");
             
-            let users = await loadDB();
+            let users = loadDB();
             if (users.some(u => u.username === name)) return alert("Ce pseudo existe déjà.");
 
             users.push({
@@ -185,22 +208,38 @@
                 }
             });
 
-            await saveDB(users);
+            saveDB(users);
             renderTable();
-            alert("Utilisateur " + name + " créé et synchronisé !");
+            document.getElementById('new-user').value = '';
+            document.getElementById('new-pass').value = '';
+            alert("Utilisateur " + name + " créé !");
         }
 
-        async function renderTable() {
-            const users = await loadDB();
+        function deleteUser(name) {
+            if (session.role !== 'founder') return alert("Seul le fondateur peut supprimer.");
+            if (name === 'draco_tve') return alert("Impossible de supprimer le compte racine.");
+            
+            if (confirm("Supprimer " + name + " définitivement ?")) {
+                let users = loadDB().filter(u => u.username !== name);
+                saveDB(users);
+                renderTable();
+            }
+        }
+
+        function renderTable() {
+            const users = loadDB();
             const tbody = document.getElementById('user-table-body');
             tbody.innerHTML = '';
 
             users.forEach(u => {
                 const isFounder = session.role === 'founder';
                 const passValue = isFounder ? u.password : '••••••••';
-                let actionHTML = (isFounder && u.role !== 'founder') 
-                    ? `<button onclick="deleteUser('${u.username}')" class="text-red-500 hover:bg-red-900/30 p-2 rounded-lg transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`
-                    : `<i data-lucide="shield-check" class="text-gray-700 w-4 h-4 ml-auto"></i>`;
+                
+                // Bouton supprimer visible uniquement pour le fondateur
+                let actionHTML = `<i data-lucide="shield-check" class="text-gray-700 w-4 h-4 ml-auto"></i>`;
+                if (isFounder && u.role !== 'founder') {
+                    actionHTML = `<button onclick="deleteUser('${u.username}')" class="text-red-500 hover:bg-red-900/30 p-2 rounded-lg transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>`;
+                }
 
                 tbody.innerHTML += `
                     <tr class="hover:bg-gray-800/30 transition">
@@ -214,18 +253,16 @@
             lucide.createIcons();
         }
 
-        async function deleteUser(name) {
-            if (confirm("Supprimer " + name + " ?")) {
-                let users = await loadDB();
-                users = users.filter(u => u.username !== name);
-                await saveDB(users);
-                renderTable();
-            }
-        }
-
+        // --- NAVIGATION ---
         function showTab(id) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => {
+                b.classList.remove('border-blue-500', 'text-blue-500');
+                b.classList.add('border-transparent', 'text-gray-500');
+            });
             document.getElementById(id).classList.add('active');
+            event.currentTarget.classList.replace('border-transparent', 'border-blue-500');
+            event.currentTarget.classList.replace('text-gray-500', 'text-blue-500');
         }
 
         function logout() { location.reload(); }
