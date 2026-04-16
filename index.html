@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Empire Orion — Serveur Médiéval Garry's Mod</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Cinzel+Decorative:wght@400;700&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --gold:#c9a84c;--gold-dark:#8b6914;--gold-light:#f0dba0;
+  --bg:#0d0a07;--bg2:#110e08;--bg3:#130f09;--bg4:#1a1208;
+  --border:#2a1f10;--border-light:#4a3820;
+  --text:#d4b483;--muted:#6a5840;--muted2:#9a8060;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'IM Fell English',serif;overflow-x:hidden}
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border-light);border-radius:3px}
+
+/* ===== NAV ===== */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(13,10,7,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 60px;height:70px;display:flex;align-items:center;justify-content:space-between;transition:all .3s}
+.nav-logo{font-family:'Cinzel Decorative',serif;font-size:20px;color:var(--gold);letter-spacing:2px;text-decoration:none}
+.nav-logo span{display:block;font-family:'Cinzel',serif;font-size:10px;letter-spacing:5px;color:var(--gold-dark);text-transform:uppercase;margin-top:2px}
+.nav-links{display:flex;gap:36px;align-items:center}
+.nav-links a{font-family:'Cinzel',serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .2s;cursor:pointer}
+.nav-links a:hover{color:var(--gold)}
+.nav-cta{background:transparent;border:1px solid var(--gold);padding:9px 22px;font-family:'Cinzel',serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);cursor:pointer;transition:all .2s;text-decoration:none}
+.nav-cta:hover{background:var(--gold);color:var(--bg)}
+.hamburger{display:none;background:none;border:none;color:var(--gold);font-size:24px;cursor:pointer}
+
+/* ===== HERO ===== */
+.hero{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;overflow:hidden;padding-top:70px}
+#stars-canvas{position:absolute;inset:0;z-index:0}
+.hero-castle{position:absolute;bottom:0;left:0;right:0;z-index:1}
+.hero-mist{position:absolute;bottom:0;left:0;right:0;height:200px;background:linear-gradient(to top,var(--bg) 20%,transparent);z-index:2}
+.hero-content{position:relative;z-index:3;padding:0 20px;max-width:800px}
+.hero-badge{display:inline-block;font-family:'Cinzel',serif;font-size:10px;letter-spacing:6px;text-transform:uppercase;color:var(--gold-dark);border:1px solid var(--border-light);padding:6px 20px;margin-bottom:28px}
+.hero-title{font-family:'Cinzel Decorative',serif;font-size:72px;color:var(--gold);line-height:1;margin-bottom:8px;text-shadow:0 0 60px rgba(201,168,76,.15)}
+.hero-subtitle{font-family:'Cinzel',serif;font-size:16px;letter-spacing:8px;text-transform:uppercase;color:var(--gold-dark);margin-bottom:28px}
+.ornament{display:flex;align-items:center;gap:20px;justify-content:center;margin-bottom:28px}
+.ornament-line{flex:1;max-width:120px;height:1px;background:var(--border-light)}
+.ornament-diamond{width:16px;height:16px;display:flex;align-items:center;justify-content:center}
+.hero-desc{font-style:italic;font-size:17px;color:var(--muted2);line-height:1.9;margin-bottom:36px;max-width:560px;margin-left:auto;margin-right:auto}
+.hero-btns{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.btn-gold{background:var(--gold-dark);border:1px solid var(--gold);padding:15px 36px;font-family:'Cinzel',serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--gold-light);cursor:pointer;transition:all .2s;text-decoration:none;display:inline-block}
+.btn-gold:hover{background:var(--gold);color:var(--bg)}
+.btn-outline{background:transparent;border:1px solid var(--border-light);padding:15px 36px;font-family:'Cinzel',serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);cursor:pointer;transition:all .2s;text-decoration:none;display:inline-block}
+.btn-outline:hover{border-color:var(--gold);color:var(--gold)}
+.scroll-hint{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);z-index:3;font-family:'Cinzel',serif;font-size:10px;letter-spacing:3px;color:var(--border-light);text-transform:uppercase;animation:bobble 2s ease-in-out infinite}
+@keyframes bobble{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(6px)}}
+
+/* ===== STATS ===== */
+.stats{background:var(--bg3);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:32px 60px;display:flex;justify-content:center;gap:0}
+.stat-item{text-align:center;padding:0 60px;position:relative}
+.stat-item+.stat-item::before{content:'';position:absolute;left:0;top:10%;bottom:10%;width:1px;background:var(--border)}
+.stat-num{font-family:'Cinzel Decorative',serif;font-size:36px;color:var(--gold);display:block}
+.stat-label{font-family:'Cinzel',serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-top:6px;display:block}
+
+/* ===== SECTION HEADER ===== */
+.section-header{text-align:center;margin-bottom:56px}
+.section-eyebrow{font-family:'Cinzel',serif;font-size:10px;letter-spacing:5px;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+.section-title{font-family:'Cinzel Decorative',serif;font-size:36px;color:var(--gold);margin-bottom:16px}
+.section-divider{display:flex;align-items:center;gap:16px;justify-content:center}
+.section-divider-line{width:60px;height:1px;background:var(--border-light)}
+.section-divider-gem{width:6px;height:6px;background:var(--gold);transform:rotate(45deg)}
+
+/* ===== FEATURES ===== */
+.features{padding:80px 60px;background:var(--bg)}
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;max-width:1000px;margin:0 auto}
+.feature-card{background:var(--bg2);border:1px solid var(--border);padding:36px 28px;text-align:center;transition:border-color .2s,transform .2s;position:relative;overflow:hidden}
+.feature-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--gold-dark);transform:scaleX(0);transition:transform .3s}
+.feature-card:hover{border-color:var(--border-light);transform:translateY(-4px)}
+.feature-card:hover::before{transform:scaleX(1)}
+.feature-icon{width:36px;height:36px;margin:0 auto 20px;display:block}
+.feature-title{font-family:'Cinzel',serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+.feature-desc{font-style:italic;font-size:14px;color:var(--muted);line-height:1.8}
+
+/* ===== LORE ===== */
+.lore{padding:80px 60px;background:var(--bg2);border-top:1px solid var(--border)}
+.lore-inner{max-width:1000px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+.lore-text h3{font-family:'Cinzel',serif;font-size:10px;letter-spacing:5px;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+.lore-text h2{font-family:'Cinzel Decorative',serif;font-size:32px;color:var(--gold);margin-bottom:20px}
+.lore-text p{font-style:italic;font-size:15px;color:var(--muted2);line-height:1.9;margin-bottom:16px}
+.lore-text a{font-family:'Cinzel',serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);text-decoration:none;border-bottom:1px solid var(--border-light);padding-bottom:2px}
+.lore-visual{border:1px solid var(--border);background:var(--bg);padding:32px;text-align:center}
+.lore-shield{margin:0 auto}
+.lore-factions{margin-top:24px}
+.faction-item{display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid var(--border)}
+.faction-item:last-child{border-bottom:none}
+.faction-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.faction-name{font-family:'Cinzel',serif;font-size:12px;letter-spacing:1px;color:var(--gold);flex:1}
+.faction-desc{font-size:12px;color:var(--muted);font-style:italic}
+
+/* ===== NEWS ===== */
+.news{padding:80px 60px;background:var(--bg)}
+.news-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;max-width:1000px;margin:0 auto}
+.news-card{border:1px solid var(--border);background:var(--bg2);padding:28px;transition:border-color .2s}
+.news-card:hover{border-color:var(--border-light)}
+.news-tag{font-family:'Cinzel',serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gold-dark);background:rgba(139,105,20,.1);border:1px solid rgba(139,105,20,.2);padding:3px 10px;display:inline-block;margin-bottom:14px}
+.news-date{font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:10px}
+.news-title{font-family:'Cinzel',serif;font-size:14px;color:var(--gold);margin-bottom:10px;line-height:1.5}
+.news-body{font-style:italic;font-size:13px;color:var(--muted);line-height:1.7}
+
+/* ===== REJOINDRE ===== */
+.join{padding:80px 60px;background:var(--bg3);border-top:1px solid var(--border);border-bottom:1px solid var(--border);text-align:center}
+.join-inner{max-width:600px;margin:0 auto}
+.join h2{font-family:'Cinzel Decorative',serif;font-size:36px;color:var(--gold);margin-bottom:12px}
+.join p{font-style:italic;font-size:16px;color:var(--muted2);margin-bottom:8px;line-height:1.8}
+.join-ip{font-family:'Cinzel',serif;font-size:13px;letter-spacing:4px;color:var(--gold-dark);background:var(--bg2);border:1px solid var(--border);padding:12px 24px;display:inline-block;margin:20px 0 28px;cursor:pointer;transition:border-color .2s}
+.join-ip:hover{border-color:var(--gold)}
+.join-ip span{color:var(--muted);font-size:10px;display:block;letter-spacing:2px;margin-bottom:4px}
+
+/* ===== FOOTER ===== */
+footer{background:var(--bg2);border-top:1px solid var(--border);padding:40px 60px}
+.footer-inner{max-width:1000px;margin:0 auto}
+.footer-top{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;margin-bottom:40px}
+.footer-brand .logo{font-family:'Cinzel Decorative',serif;font-size:18px;color:var(--gold);margin-bottom:8px}
+.footer-brand p{font-style:italic;font-size:13px;color:var(--muted);line-height:1.7;margin-top:10px}
+.footer-col h4{font-family:'Cinzel',serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gold-dark);margin-bottom:16px}
+.footer-col a{display:block;font-family:'Cinzel',serif;font-size:11px;color:var(--muted);text-decoration:none;margin-bottom:8px;transition:color .15s}
+.footer-col a:hover{color:var(--gold)}
+.footer-bottom{border-top:1px solid var(--border);padding-top:24px;display:flex;justify-content:space-between;align-items:center}
+.footer-copy{font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase}
+.footer-socials{display:flex;gap:16px}
+.social-btn{width:32px;height:32px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:border-color .15s;font-size:14px}
+.social-btn:hover{border-color:var(--gold)}
+
+
+/* ===== BOUTIQUE ===== */
+.boutique{padding:80px 60px;background:var(--bg2);border-top:1px solid var(--border)}
+.boutique-tabs{display:flex;gap:0;justify-content:center;margin-bottom:48px;border:1px solid var(--border)}
+.boutique-tab{padding:12px 28px;font-family:'Cinzel',serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);cursor:pointer;transition:all .2s;background:transparent;border:none;border-right:1px solid var(--border)}
+.boutique-tab:last-child{border-right:none}
+.boutique-tab.active{background:var(--bg4);color:var(--gold)}
+.boutique-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;max-width:1000px;margin:0 auto}
+.grade-card{border:1px solid var(--border);background:var(--bg);padding:0;overflow:hidden;transition:border-color .2s,transform .2s;position:relative}
+.grade-card:hover{border-color:var(--border-light);transform:translateY(-4px)}
+.grade-card.popular{border-color:var(--gold-dark)}
+.grade-card.popular .popular-badge{display:block}
+.popular-badge{display:none;position:absolute;top:0;left:0;right:0;background:var(--gold-dark);text-align:center;font-family:'Cinzel',serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gold-light);padding:6px}
+.grade-header{padding:28px 24px 20px;border-bottom:1px solid var(--border);text-align:center}
+.grade-icon{width:48px;height:48px;margin:0 auto 12px;display:block}
+.grade-name{font-family:'Cinzel Decorative',serif;font-size:20px;color:var(--gold);margin-bottom:4px}
+.grade-type{font-family:'Cinzel',serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--muted)}
+.grade-price{padding:16px 24px;text-align:center;border-bottom:1px solid var(--border)}
+.price-amount{font-family:'Cinzel Decorative',serif;font-size:32px;color:var(--gold-light)}
+.price-period{font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-top:2px}
+.grade-perks{padding:20px 24px}
+.perk-item{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;font-size:13px;font-style:italic;color:var(--muted2);line-height:1.5}
+.perk-check{color:var(--gold-dark);flex-shrink:0;font-style:normal}
+.perk-check.no{color:#3a2520}
+.grade-btn{width:calc(100% - 48px);margin:0 24px 24px;padding:12px;font-family:'Cinzel',serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;cursor:pointer;transition:all .2s}
+.grade-btn-primary{background:var(--gold-dark);border:1px solid var(--gold);color:var(--gold-light)}
+.grade-btn-primary:hover{background:var(--gold);color:var(--bg)}
+.grade-btn-outline{background:transparent;border:1px solid var(--border);color:var(--muted)}
+.grade-btn-outline:hover{border-color:var(--gold);color:var(--gold)}
+.vote-section{max-width:1000px;margin:48px auto 0;border:1px solid var(--border);background:var(--bg);padding:32px;text-align:center}
+.vote-title{font-family:'Cinzel',serif;font-size:13px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+.vote-desc{font-style:italic;font-size:14px;color:var(--muted);margin-bottom:20px;line-height:1.7}
+.vote-sites{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.vote-site{border:1px solid var(--border);padding:12px 24px;font-family:'Cinzel',serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);cursor:pointer;transition:all .2s;text-decoration:none;display:inline-block}
+.vote-site:hover{border-color:var(--gold);color:var(--gold)}
+.patreon-banner{max-width:1000px;margin:24px auto 0;background:var(--bg4);border:1px solid #ff6347;padding:24px 32px;display:flex;align-items:center;gap:24px}
+.patreon-icon{font-size:36px;flex-shrink:0}
+.patreon-text h4{font-family:'Cinzel',serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:#ff8066;margin-bottom:6px}
+.patreon-text p{font-style:italic;font-size:13px;color:var(--muted);line-height:1.6}
+.patreon-btn{margin-left:auto;background:transparent;border:1px solid #ff6347;padding:10px 22px;font-family:'Cinzel',serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#ff8066;cursor:pointer;flex-shrink:0;text-decoration:none;display:inline-block;transition:all .2s}
+.patreon-btn:hover{background:#ff6347;color:#fff}
+@media(max-width:900px){
+  .boutique{padding:48px 24px}
+  .boutique-grid{grid-template-columns:1fr}
+  .boutique-tabs{flex-wrap:wrap}
+  .patreon-banner{flex-direction:column;text-align:center}
+  .patreon-btn{margin-left:0}
+}
+
+/* ===== TOAST ===== */
+#toast{position:fixed;bottom:24px;right:24px;background:var(--bg4);border:1px solid var(--gold);padding:12px 20px;font-family:'Cinzel',serif;font-size:11px;letter-spacing:2px;color:var(--gold);z-index:999;display:none;animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* ===== MOBILE ===== */
+@media(max-width:900px){
+  nav{padding:0 24px}
+  .nav-links{display:none}
+  .hamburger{display:block}
+  .hero-title{font-size:44px}
+  .stats{padding:24px;gap:0;flex-wrap:wrap}
+  .stat-item{padding:16px 24px;width:50%}
+  .stat-item:nth-child(2)::before,.stat-item:nth-child(4)::before{display:none}
+  .features{padding:48px 24px}
+  .features-grid{grid-template-columns:1fr}
+  .lore{padding:48px 24px}
+  .lore-inner{grid-template-columns:1fr;gap:32px}
+  .news{padding:48px 24px}
+  .news-grid{grid-template-columns:1fr}
+  .join{padding:48px 24px}
+  footer{padding:32px 24px}
+  .footer-top{grid-template-columns:1fr 1fr;gap:24px}
+  .footer-bottom{flex-direction:column;gap:16px;text-align:center}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="navbar">
+  <a href="#" class="nav-logo"><img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjYwMCIgdmlld0JveD0iMCAwIDY4MCA4MDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI2ODAiIGhlaWdodD0iODAwIiBmaWxsPSIjMGQwYTA3Ii8+CjxjaXJjbGUgY3g9IjM0MCIgY3k9IjM0MCIgcj0iMzAwIiBmaWxsPSIjMGQwYTA3IiBzdHJva2U9IiNjOWE4NGMiIHN0cm9rZS13aWR0aD0iMyIvPgo8Y2lyY2xlIGN4PSIzNDAiIGN5PSIzNDAiIHI9IjI5MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNGEzODIwIiBzdHJva2Utd2lkdGg9IjEiLz4KPGNpcmNsZSBjeD0iMzQwIiBjeT0iMzQwIiByPSIyNzAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzJhMWYxMCIgc3Ryb2tlLXdpZHRoPSIxIi8+Cjxwb2x5Z29uIHBvaW50cz0iMzQwLDM4IDM0OCw1MCAzNDAsNjIgMzMyLDUwIiBmaWxsPSIjYzlhODRjIi8+Cjxwb2x5Z29uIHBvaW50cz0iMzQwLDYxOCAzNDgsNjMwIDM0MCw2NDIgMzMyLDYzMCIgZmlsbD0iI2M5YTg0YyIvPgo8cG9seWdvbiBwb2ludHM9IjM4LDM0MCA1MCwzNDggNjIsMzQwIDUwLDMzMiIgZmlsbD0iI2M5YTg0YyIvPgo8cG9seWdvbiBwb2ludHM9IjYxOCwzNDAgNjMwLDM0OCA2NDIsMzQwIDYzMCwzMzIiIGZpbGw9IiNjOWE4NGMiLz4KPHBvbHlnb24gcG9pbnRzPSIxMjYsMTI2IDEzMiwxMzQgMTI2LDE0MiAxMjAsMTM0IiBmaWxsPSIjOGI2OTE0Ii8+Cjxwb2x5Z29uIHBvaW50cz0iNTU0LDEyNiA1NjAsMTM0IDU1NCwxNDIgNTQ4LDEzNCIgZmlsbD0iIzhiNjkxNCIvPgo8cG9seWdvbiBwb2ludHM9IjEyNiw1NTQgMTMyLDU2MiAxMjYsNTcwIDEyMCw1NjIiIGZpbGw9IiM4YjY5MTQiLz4KPHBvbHlnb24gcG9pbnRzPSI1NTQsNTU0IDU2MCw1NjIgNTU0LDU3MCA1NDgsNTYyIiBmaWxsPSIjOGI2OTE0Ii8+CjxsaW5lIHgxPSIzNDAiIHkxPSI2MCIgeDI9IjM0MCIgeTI9IjEzMCIgc3Ryb2tlPSIjNGEzODIwIiBzdHJva2Utd2lkdGg9IjEiLz4KPGxpbmUgeDE9IjM0MCIgeTE9IjU1MCIgeDI9IjM0MCIgeTI9IjYyMCIgc3Ryb2tlPSIjNGEzODIwIiBzdHJva2Utd2lkdGg9IjEiLz4KPGxpbmUgeDE9IjYwIiB5MT0iMzQwIiB4Mj0iMTMwIiB5Mj0iMzQwIiBzdHJva2U9IiM0YTM4MjAiIHN0cm9rZS13aWR0aD0iMSIvPgo8bGluZSB4MT0iNTUwIiB5MT0iMzQwIiB4Mj0iNjIwIiB5Mj0iMzQwIiBzdHJva2U9IiM0YTM4MjAiIHN0cm9rZS13aWR0aD0iMSIvPgo8cGF0aCBkPSJNMzQwIDEzMCBMNTAwIDE3MCBMNTAwIDMyMCBRNTAwIDQ0MCAzNDAgNTIwIFExODAgNDQwIDE4MCAzMjAgTDE4MCAxNzAgWiIgZmlsbD0iIzExMGUwOSIgc3Ryb2tlPSIjYzlhODRjIiBzdHJva2Utd2lkdGg9IjIuNSIvPgo8cGF0aCBkPSJNMzQwIDE1MCBMNDgwIDE4NiBMNDgwIDMxOCBRNDgwIDQyNCAzNDAgNDk2IFEyMDAgNDI0IDIwMCAzMTggTDIwMCAxODYgWiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNGEzODIwIiBzdHJva2Utd2lkdGg9IjEiLz4KPGxpbmUgeDE9IjIwMCIgeTE9IjI4MCIgeDI9IjQ4MCIgeTI9IjI4MCIgc3Ryb2tlPSIjNGEzODIwIiBzdHJva2Utd2lkdGg9IjEiLz4KPGxpbmUgeDE9IjM0MCIgeTE9IjE1MiIgeDI9IjM0MCIgeTI9IjQ5NCIgc3Ryb2tlPSIjNGEzODIwIiBzdHJva2Utd2lkdGg9IjEiLz4KPGNpcmNsZSBjeD0iMjQ4IiBjeT0iMjAwIiByPSI0IiBmaWxsPSIjYzlhODRjIi8+CjxjaXJjbGUgY3g9IjI2OCIgY3k9IjIxNSIgcj0iMyIgZmlsbD0iI2M5YTg0YyIvPgo8Y2lyY2xlIGN4PSIyNTUiIGN5PSIyMzUiIHI9IjMuNSIgZmlsbD0iI2M5YTg0YyIvPgo8Y2lyY2xlIGN4PSIyNzgiIGN5PSIyMjgiIHI9IjIuNSIgZmlsbD0iI2M5YTg0YyIvPgo8Y2lyY2xlIGN4PSIyOTAiIGN5PSIyMTAiIHI9IjMiIGZpbGw9IiNjOWE4NGMiLz4KPGNpcmNsZSBjeD0iMjc1IiBjeT0iMjQ4IiByPSIyIiBmaWxsPSIjYzlhODRjIi8+CjxjaXJjbGUgY3g9IjI2MCIgY3k9IjI1NSIgcj0iMi41IiBmaWxsPSIjYzlhODRjIi8+CjxsaW5lIHgxPSIyNDgiIHkxPSIyMDAiIHgyPSIyNjgiIHkyPSIyMTUiIHN0cm9rZT0iIzhiNjkxNCIgc3Ryb2tlLXdpZHRoPSIxIiBvcGFjaXR5PSIwLjYiLz4KPGxpbmUgeDE9IjI2OCIgeTE9IjIxNSIgeDI9IjI1NSIgeTI9IjIzNSIgc3Ryb2tlPSIjOGI2OTE0IiBzdHJva2Utd2lkdGg9IjEiIG9wYWNpdHk9IjAuNiIvPgo8bGluZSB4MT0iMjY4IiB5MT0iMjE1IiB4Mj0iMjkwIiB5Mj0iMjEwIiBzdHJva2U9IiM4YjY5MTQiIHN0cm9rZS13aWR0aD0iMSIgb3BhY2l0eT0iMC42Ii8+CjxsaW5lIHgxPSIyNTUiIHkxPSIyMzUiIHgyPSIyNzgiIHkyPSIyMjgiIHN0cm9rZT0iIzhiNjkxNCIgc3Ryb2tlLXdpZHRoPSIxIiBvcGFjaXR5PSIwLjYiLz4KPGxpbmUgeDE9IjI3OCIgeTE9IjIyOCIgeDI9IjI5MCIgeTI9IjIxMCIgc3Ryb2tlPSIjOGI2OTE0IiBzdHJva2Utd2lkdGg9IjEiIG9wYWNpdHk9IjAuNiIvPgo8bGluZSB4MT0iMjU1IiB5MT0iMjM1IiB4Mj0iMjYwIiB5Mj0iMjU1IiBzdHJva2U9IiM4YjY5MTQiIHN0cm9rZS13aWR0aD0iMSIgb3BhY2l0eT0iMC42Ii8+CjxsaW5lIHgxPSIyNjAiIHkxPSIyNTUiIHgyPSIyNzUiIHkyPSIyNDgiIHN0cm9rZT0iIzhiNjkxNCIgc3Ryb2tlLXdpZHRoPSIxIiBvcGFjaXR5PSIwLjYiLz4KPGxpbmUgeDE9IjQyMCIgeTE9IjE2MCIgeDI9IjQyMCIgeTI9IjI3MCIgc3Ryb2tlPSIjYzlhODRjIiBzdHJva2Utd2lkdGg9IjMiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgo8cG9seWdvbiBwb2ludHM9IjQyMCwxNTUgNDEzLDE3NSA0MjAsMTcwIDQyNywxNzUiIGZpbGw9IiNjOWE4NGMiLz4KPHJlY3QgeD0iNDA1IiB5PSIyMTgiIHdpZHRoPSIzMCIgaGVpZ2h0PSI0IiByeD0iMSIgZmlsbD0iI2M5YTg0YyIvPgo8cmVjdCB4PSI0MTciIHk9IjI2OCIgd2lkdGg9IjYiIGhlaWdodD0iMTAiIHJ4PSIyIiBmaWxsPSIjOGI2OTE0Ii8+CjxwYXRoIGQ9Ik0yNTAgMzA1IEwzMTAgMzIwIEwzMTAgMzcwIFEzMTAgNDAwIDI1MCA0MTUgUTE5MCA0MDAgMTkwIDM3MCBMMTkwIDMyMCBaIiBmaWxsPSJub25lIiBzdHJva2U9IiM4YjY5MTQiIHN0cm9rZS13aWR0aD0iMS41Ii8+CjxsaW5lIHgxPSIxOTAiIHkxPSIzNTUiIHgyPSIzMTAiIHkyPSIzNTUiIHN0cm9rZT0iIzRhMzgyMCIgc3Ryb2tlLXdpZHRoPSIxIi8+CjxsaW5lIHgxPSIyNTAiIHkxPSIzMjAiIHgyPSIyNTAiIHkyPSI0MTMiIHN0cm9rZT0iIzRhMzgyMCIgc3Ryb2tlLXdpZHRoPSIxIi8+CjxwYXRoIGQ9Ik0zNzUgMzIwIEwzODAgMzA1IEwzOTAgMzE1IEw0MDAgMzAwIEw0MTAgMzE1IEw0MjAgMzA1IEw0MjUgMzIwIFoiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2M5YTg0YyIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHJlY3QgeD0iMzczIiB5PSIzMjAiIHdpZHRoPSI1NCIgaGVpZ2h0PSIxMCIgcng9IjEiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2M5YTg0YyIgc3Ryb2tlLXdpZHRoPSIxLjUiLz4KPGNpcmNsZSBjeD0iNDAwIiBjeT0iMzAyIiByPSIzIiBmaWxsPSIjYzlhODRjIi8+CjxjaXJjbGUgY3g9IjM4MCIgY3k9IjMwNiIgcj0iMi41IiBmaWxsPSIjYzlhODRjIi8+CjxjaXJjbGUgY3g9IjQyMCIgY3k9IjMwNiIgcj0iMi41IiBmaWxsPSIjYzlhODRjIi8+CjxjaXJjbGUgY3g9IjM0MCIgY3k9IjM0MCIgcj0iNTUiIGZpbGw9IiMwZDBhMDciIHN0cm9rZT0iI2M5YTg0YyIgc3Ryb2tlLXdpZHRoPSIyIi8+CjxjaXJjbGUgY3g9IjM0MCIgY3k9IjM0MCIgcj0iNDYiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzRhMzgyMCIgc3Ryb2tlLXdpZHRoPSIxIi8+CjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDM0MCwzNDApIj4KICA8cG9seWdvbiBwb2ludHM9IjAsLTM4IDYsLTEwIDM4LDAgNiwxMCAwLDM4IC02LDEwIC0zOCwwIC02LC0xMCIgZmlsbD0iI2M5YTg0YyIgb3BhY2l0eT0iMC4xNSIvPgogIDxwb2x5Z29uIHBvaW50cz0iMCwtMjggNCwtOCAyOCwwIDQsOCAwLDI4IC00LDggLTI4LDAgLTQsLTgiIGZpbGw9IiNjOWE4NGMiIG9wYWNpdHk9IjAuMjUiLz4KICA8Y2lyY2xlIGN4PSIwIiBjeT0iMCIgcj0iMTIiIGZpbGw9IiMxMTBlMDkiIHN0cm9rZT0iI2M5YTg0YyIgc3Ryb2tlLXdpZHRoPSIxLjUiLz4KICA8Y2lyY2xlIGN4PSIwIiBjeT0iMCIgcj0iNiIgZmlsbD0iI2M5YTg0YyIvPgogIDxjaXJjbGUgY3g9IjAiIGN5PSIwIiByPSIzIiBmaWxsPSIjMGQwYTA3Ii8+CjwvZz4KPGRlZnM+CiAgPHBhdGggaWQ9InRvcEFyYyIgZD0iTSAxNDAsMzQwIEEgMjAwLDIwMCAwIDAsMSA1NDAsMzQwIi8+CiAgPHBhdGggaWQ9ImJvdEFyYyIgZD0iTSAxNzUsNDIwIEEgMjAwLDIwMCAwIDAsMCA1MDUsNDIwIi8+CjwvZGVmcz4KPHRleHQgZm9udC1mYW1pbHk9Ikdlb3JnaWEsIHNlcmlmIiBmb250LXNpemU9IjE1IiBmaWxsPSIjOGI2OTE0IiBsZXR0ZXItc3BhY2luZz0iNiI+CiAgPHRleHRQYXRoIGhyZWY9IiN0b3BBcmMiIHN0YXJ0T2Zmc2V0PSIxNSUiPkVNUElSRSAgT1JJT048L3RleHRQYXRoPgo8L3RleHQ+Cjx0ZXh0IGZvbnQtZmFtaWx5PSJHZW9yZ2lhLCBzZXJpZiIgZm9udC1zaXplPSIxMSIgZmlsbD0iIzVhNGEzNSIgbGV0dGVyLXNwYWNpbmc9IjMiPgogIDx0ZXh0UGF0aCBocmVmPSIjYm90QXJjIiBzdGFydE9mZnNldD0iMjAlIj5HQVJSWSdTIE1PRCAgTUVESUVWQUwgUlA8L3RleHRQYXRoPgo8L3RleHQ+Cjxwb2x5Z29uIHBvaW50cz0iMzQwLDI3NiAzNDUsMjg1IDM0MCwyOTQgMzM1LDI4NSIgZmlsbD0iI2M5YTg0YyIgb3BhY2l0eT0iMC44Ii8+Cjxwb2x5Z29uIHBvaW50cz0iMjAwLDM0MCAyMDksMzQ1IDIxOCwzNDAgMjA5LDMzNSIgZmlsbD0iIzhiNjkxNCIgb3BhY2l0eT0iMC44Ii8+Cjxwb2x5Z29uIHBvaW50cz0iNDYyLDM0MCA0NzEsMzQ1IDQ4MCwzNDAgNDcxLDMzNSIgZmlsbD0iIzhiNjkxNCIgb3BhY2l0eT0iMC44Ii8+Cgo8IS0tIExpZ25lIHPDqXBhcmF0cmljZSAtLT4KPGxpbmUgeDE9IjE4MCIgeTE9IjY2MCIgeDI9IjUwMCIgeTI9IjY2MCIgc3Ryb2tlPSIjNGEzODIwIiBzdHJva2Utd2lkdGg9IjEiLz4KPHBvbHlnb24gcG9pbnRzPSIzNDAsNjUyIDM0Niw2NjIgMzQwLDY3MiAzMzQsNjYyIiBmaWxsPSIjYzlhODRjIi8+Cgo8IS0tIE5vbSBPUklPTiBlbiBncmFuZCAtLT4KPHRleHQgeD0iMzQwIiB5PSI3MzAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJHZW9yZ2lhLCBzZXJpZiIgZm9udC1zaXplPSI5MCIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IiNjOWE4NGMiIGxldHRlci1zcGFjaW5nPSIxOCI+T1JJT048L3RleHQ+Cgo8IS0tIFNvdXMtdGl0cmUgLS0+Cjx0ZXh0IHg9IjM0MCIgeT0iNzY4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iR2VvcmdpYSwgc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGZpbGw9IiM1YTRhMzUiIGxldHRlci1zcGFjaW5nPSI4Ij5FTVBJUkUgIE1FRElFVkFMPC90ZXh0PgoKPCEtLSBQZXRpdHMgbG9zYW5nZXMgZW5jYWRyYW50IGxlIHRleHRlIC0tPgo8cG9seWdvbiBwb2ludHM9IjEwOCw3MjYgMTE1LDczNCAxMDgsNzQyIDEwMSw3MzQiIGZpbGw9IiM4YjY5MTQiIG9wYWNpdHk9IjAuNiIvPgo8cG9seWdvbiBwb2ludHM9IjU3Miw3MjYgNTc5LDczNCA1NzIsNzQyIDU2NSw3MzQiIGZpbGw9IiM4YjY5MTQiIG9wYWNpdHk9IjAuNiIvPgo8L3N2Zz4K" style="height:48px;width:auto;object-fit:contain" alt="Empire Orion"/></a>
+  <div class="nav-links">
+    <a href="#lore">Lore</a>
+    <a href="#features">Gameplay</a>
+    <a href="#news">Actualités</a>
+    <a href="#join">Rejoindre</a>
+    <a href="#boutique">Boutique</a>
+    <a href="#" class="nav-cta">Jouer maintenant</a>
+  </div>
+  <button class="hamburger" onclick="toggleMenu()">☰</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <canvas id="stars-canvas"></canvas>
+
+  <!-- Château SVG -->
+  <svg class="hero-castle" viewBox="0 0 1400 380" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMax meet">
+    <!-- Ciel nuit violet profond -->
+    <rect width="1400" height="380" fill="#080508"/>
+    <!-- Lune -->
+    <circle cx="200" cy="80" r="40" fill="#1a1508"/>
+    <circle cx="215" cy="72" r="36" fill="#080508"/>
+    <!-- Montagnes arrière-plan -->
+    <polygon points="0,380 100,180 200,260 350,120 480,200 580,100 700,180 820,80 950,160 1050,100 1150,170 1250,110 1350,160 1400,120 1400,380" fill="#0e0a06"/>
+    <!-- Muraille gauche -->
+    <rect x="280" y="240" width="200" height="140" fill="#100d08"/>
+    <rect x="280" y="225" width="16" height="20" fill="#100d08"/>
+    <rect x="300" y="225" width="16" height="20" fill="#100d08"/>
+    <rect x="320" y="225" width="16" height="20" fill="#100d08"/>
+    <rect x="340" y="225" width="16" height="20" fill="#100d08"/>
+    <rect x="360" y="225" width="16" height="20" fill="#100d08"/>
+    <rect x="380" y="225" width="16" height="20" fill="#100d08"/>
+    <rect x="400" y="225" width="16" height="20" fill="#100d08"/>
+    <rect x="440" y="225" width="16" height="20" fill="#100d08"/>
+    <rect x="460" y="225" width="16" height="20" fill="#100d08"/>
+    <!-- Tour gauche -->
+    <rect x="240" y="180" width="70" height="200" fill="#120e09"/>
+    <rect x="238" y="164" width="16" height="20" fill="#120e09"/>
+    <rect x="258" y="164" width="16" height="20" fill="#120e09"/>
+    <rect x="278" y="164" width="16" height="20" fill="#120e09"/>
+    <rect x="298" y="164" width="16" height="20" fill="#120e09"/>
+    <!-- Fenêtre tour gauche -->
+    <rect x="265" y="210" width="18" height="24" rx="9" fill="#c9a84c" opacity="0.35"/>
+    <rect x="265" y="260" width="18" height="24" rx="9" fill="#c9a84c" opacity="0.25"/>
+    <!-- Château central -->
+    <rect x="540" y="160" width="320" height="220" fill="#110e09"/>
+    <!-- Créneaux château central -->
+    <rect x="540" y="144" width="20" height="22" fill="#110e09"/>
+    <rect x="564" y="144" width="20" height="22" fill="#110e09"/>
+    <rect x="588" y="144" width="20" height="22" fill="#110e09"/>
+    <rect x="612" y="144" width="20" height="22" fill="#110e09"/>
+    <rect x="636" y="144" width="20" height="22" fill="#110e09"/>
+    <rect x="660" y="144" width="20" height="22" fill="#110e09"/>
+    <rect x="684" y="144" width="20" height="22" fill="#110e09"/>
+    <rect x="708" y="144" width="20" height="22" fill="#110e09"/>
+    <rect x="732" y="144" width="20" height="22" fill="#110e09"/>
+    <rect x="756" y="144" width="20" height="22" fill="#110e09"/>
+    <rect x="780" y="144" width="20" height="22" fill="#110e09"/>
+    <rect x="804" y="144" width="20" height="22" fill="#110e09"/>
+    <rect x="828" y="144" width="20" height="22" fill="#110e09"/>
+    <!-- Tour gauche château -->
+    <rect x="505" y="110" width="80" height="270" fill="#130f0a"/>
+    <rect x="503" y="93" width="16" height="20" fill="#130f0a"/>
+    <rect x="523" y="93" width="16" height="20" fill="#130f0a"/>
+    <rect x="543" y="93" width="16" height="20" fill="#130f0a"/>
+    <rect x="563" y="93" width="16" height="20" fill="#130f0a"/>
+    <!-- Tour droite château -->
+    <rect x="815" y="110" width="80" height="270" fill="#130f0a"/>
+    <rect x="813" y="93" width="16" height="20" fill="#130f0a"/>
+    <rect x="833" y="93" width="16" height="20" fill="#130f0a"/>
+    <rect x="853" y="93" width="16" height="20" fill="#130f0a"/>
+    <rect x="873" y="93" width="16" height="20" fill="#130f0a"/>
+    <!-- Tour centrale haute -->
+    <rect x="630" y="60" width="140" height="300" fill="#150f0a"/>
+    <!-- Créneaux tour centrale -->
+    <rect x="628" y="42" width="16" height="22" fill="#150f0a"/>
+    <rect x="648" y="42" width="16" height="22" fill="#150f0a"/>
+    <rect x="668" y="42" width="16" height="22" fill="#150f0a"/>
+    <rect x="688" y="42" width="16" height="22" fill="#150f0a"/>
+    <rect x="708" y="42" width="16" height="22" fill="#150f0a"/>
+    <rect x="728" y="42" width="16" height="22" fill="#150f0a"/>
+    <rect x="748" y="42" width="16" height="22" fill="#150f0a"/>
+    <rect x="768" y="42" width="16" height="22" fill="#150f0a"/>
+    <!-- Fenêtres château -->
+    <rect x="560" y="160" width="22" height="30" rx="11" fill="#c9a84c" opacity="0.4"/>
+    <rect x="560" y="220" width="22" height="30" rx="11" fill="#c9a84c" opacity="0.3"/>
+    <rect x="818" y="160" width="22" height="30" rx="11" fill="#c9a84c" opacity="0.35"/>
+    <rect x="818" y="220" width="22" height="30" rx="11" fill="#c9a84c" opacity="0.25"/>
+    <!-- Grande fenêtre centrale -->
+    <rect x="672" y="130" width="56" height="70" rx="28" fill="#c9a84c" opacity="0.5"/>
+    <rect x="676" y="250" width="20" height="28" rx="10" fill="#c9a84c" opacity="0.4"/>
+    <rect x="704" y="250" width="20" height="28" rx="10" fill="#c9a84c" opacity="0.4"/>
+    <!-- Porte -->
+    <path d="M668,380 L668,300 Q700,270 732,300 L732,380" fill="#080507"/>
+    <!-- Herse grille -->
+    <line x1="674" y1="300" x2="674" y2="380" stroke="#1a1208" stroke-width="2"/>
+    <line x1="684" y1="300" x2="684" y2="380" stroke="#1a1208" stroke-width="2"/>
+    <line x1="694" y1="300" x2="694" y2="380" stroke="#1a1208" stroke-width="2"/>
+    <line x1="704" y1="300" x2="704" y2="380" stroke="#1a1208" stroke-width="2"/>
+    <line x1="714" y1="300" x2="714" y2="380" stroke="#1a1208" stroke-width="2"/>
+    <line x1="724" y1="300" x2="724" y2="380" stroke="#1a1208" stroke-width="2"/>
+    <line x1="668" y1="315" x2="732" y2="315" stroke="#1a1208" stroke-width="2"/>
+    <line x1="668" y1="330" x2="732" y2="330" stroke="#1a1208" stroke-width="2"/>
+    <line x1="668" y1="345" x2="732" y2="345" stroke="#1a1208" stroke-width="2"/>
+    <!-- Torches -->
+    <rect x="644" y="200" width="5" height="16" fill="#3a2810"/>
+    <ellipse cx="646" cy="198" rx="6" ry="8" fill="#c9a84c" opacity="0.7"/>
+    <ellipse cx="646" cy="195" rx="4" ry="5" fill="#f0dba0" opacity="0.5"/>
+    <rect x="751" y="200" width="5" height="16" fill="#3a2810"/>
+    <ellipse cx="753" cy="198" rx="6" ry="8" fill="#c9a84c" opacity="0.65"/>
+    <ellipse cx="753" cy="195" rx="4" ry="5" fill="#f0dba0" opacity="0.45"/>
+    <!-- Muraille droite -->
+    <rect x="920" y="240" width="200" height="140" fill="#100d08"/>
+    <rect x="920" y="225" width="16" height="20" fill="#100d08"/>
+    <rect x="940" y="225" width="16" height="20" fill="#100d08"/>
+    <rect x="960" y="225" width="16" height="20" fill="#100d08"/>
+    <rect x="980" y="225" width="16" height="20" fill="#100d08"/>
+    <rect x="1000" y="225" width="16" height="20" fill="#100d08"/>
+    <rect x="1020" y="225" width="16" height="20" fill="#100d08"/>
+    <rect x="1060" y="225" width="16" height="20" fill="#100d08"/>
+    <rect x="1080" y="225" width="16" height="20" fill="#100d08"/>
+    <rect x="1100" y="225" width="16" height="20" fill="#100d08"/>
+    <!-- Tour droite -->
+    <rect x="1090" y="180" width="70" height="200" fill="#120e09"/>
+    <rect x="1088" y="164" width="16" height="20" fill="#120e09"/>
+    <rect x="1108" y="164" width="16" height="20" fill="#120e09"/>
+    <rect x="1128" y="164" width="16" height="20" fill="#120e09"/>
+    <rect x="1148" y="164" width="16" height="20" fill="#120e09"/>
+    <rect x="1115" y="210" width="18" height="24" rx="9" fill="#c9a84c" opacity="0.3"/>
+    <!-- Sol herbe sombre -->
+    <rect x="0" y="360" width="1400" height="20" fill="#0a0705"/>
+  </svg>
+
+  <div class="hero-mist"></div>
+
+  <div class="hero-content">
+    <div style="margin-bottom:20px"><img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjYwMCIgdmlld0JveD0iMCAwIDY4MCA4MDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI2ODAiIGhlaWdodD0iODAwIiBmaWxsPSIjMGQwYTA3Ii8+CjxjaXJjbGUgY3g9IjM0MCIgY3k9IjM0MCIgcj0iMzAwIiBmaWxsPSIjMGQwYTA3IiBzdHJva2U9IiNjOWE4NGMiIHN0cm9rZS13aWR0aD0iMyIvPgo8Y2lyY2xlIGN4PSIzNDAiIGN5PSIzNDAiIHI9IjI5MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNGEzODIwIiBzdHJva2Utd2lkdGg9IjEiLz4KPGNpcmNsZSBjeD0iMzQwIiBjeT0iMzQwIiByPSIyNzAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzJhMWYxMCIgc3Ryb2tlLXdpZHRoPSIxIi8+Cjxwb2x5Z29uIHBvaW50cz0iMzQwLDM4IDM0OCw1MCAzNDAsNjIgMzMyLDUwIiBmaWxsPSIjYzlhODRjIi8+Cjxwb2x5Z29uIHBvaW50cz0iMzQwLDYxOCAzNDgsNjMwIDM0MCw2NDIgMzMyLDYzMCIgZmlsbD0iI2M5YTg0YyIvPgo8cG9seWdvbiBwb2ludHM9IjM4LDM0MCA1MCwzNDggNjIsMzQwIDUwLDMzMiIgZmlsbD0iI2M5YTg0YyIvPgo8cG9seWdvbiBwb2ludHM9IjYxOCwzNDAgNjMwLDM0OCA2NDIsMzQwIDYzMCwzMzIiIGZpbGw9IiNjOWE4NGMiLz4KPHBvbHlnb24gcG9pbnRzPSIxMjYsMTI2IDEzMiwxMzQgMTI2LDE0MiAxMjAsMTM0IiBmaWxsPSIjOGI2OTE0Ii8+Cjxwb2x5Z29uIHBvaW50cz0iNTU0LDEyNiA1NjAsMTM0IDU1NCwxNDIgNTQ4LDEzNCIgZmlsbD0iIzhiNjkxNCIvPgo8cG9seWdvbiBwb2ludHM9IjEyNiw1NTQgMTMyLDU2MiAxMjYsNTcwIDEyMCw1NjIiIGZpbGw9IiM4YjY5MTQiLz4KPHBvbHlnb24gcG9pbnRzPSI1NTQsNTU0IDU2MCw1NjIgNTU0LDU3MCA1NDgsNTYyIiBmaWxsPSIjOGI2OTE0Ii8+CjxsaW5lIHgxPSIzNDAiIHkxPSI2MCIgeDI9IjM0MCIgeTI9IjEzMCIgc3Ryb2tlPSIjNGEzODIwIiBzdHJva2Utd2lkdGg9IjEiLz4KPGxpbmUgeDE9IjM0MCIgeTE9IjU1MCIgeDI9IjM0MCIgeTI9IjYyMCIgc3Ryb2tlPSIjNGEzODIwIiBzdHJva2Utd2lkdGg9IjEiLz4KPGxpbmUgeDE9IjYwIiB5MT0iMzQwIiB4Mj0iMTMwIiB5Mj0iMzQwIiBzdHJva2U9IiM0YTM4MjAiIHN0cm9rZS13aWR0aD0iMSIvPgo8bGluZSB4MT0iNTUwIiB5MT0iMzQwIiB4Mj0iNjIwIiB5Mj0iMzQwIiBzdHJva2U9IiM0YTM4MjAiIHN0cm9rZS13aWR0aD0iMSIvPgo8cGF0aCBkPSJNMzQwIDEzMCBMNTAwIDE3MCBMNTAwIDMyMCBRNTAwIDQ0MCAzNDAgNTIwIFExODAgNDQwIDE4MCAzMjAgTDE4MCAxNzAgWiIgZmlsbD0iIzExMGUwOSIgc3Ryb2tlPSIjYzlhODRjIiBzdHJva2Utd2lkdGg9IjIuNSIvPgo8cGF0aCBkPSJNMzQwIDE1MCBMNDgwIDE4NiBMNDgwIDMxOCBRNDgwIDQyNCAzNDAgNDk2IFEyMDAgNDI0IDIwMCAzMTggTDIwMCAxODYgWiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNGEzODIwIiBzdHJva2Utd2lkdGg9IjEiLz4KPGxpbmUgeDE9IjIwMCIgeTE9IjI4MCIgeDI9IjQ4MCIgeTI9IjI4MCIgc3Ryb2tlPSIjNGEzODIwIiBzdHJva2Utd2lkdGg9IjEiLz4KPGxpbmUgeDE9IjM0MCIgeTE9IjE1MiIgeDI9IjM0MCIgeTI9IjQ5NCIgc3Ryb2tlPSIjNGEzODIwIiBzdHJva2Utd2lkdGg9IjEiLz4KPGNpcmNsZSBjeD0iMjQ4IiBjeT0iMjAwIiByPSI0IiBmaWxsPSIjYzlhODRjIi8+CjxjaXJjbGUgY3g9IjI2OCIgY3k9IjIxNSIgcj0iMyIgZmlsbD0iI2M5YTg0YyIvPgo8Y2lyY2xlIGN4PSIyNTUiIGN5PSIyMzUiIHI9IjMuNSIgZmlsbD0iI2M5YTg0YyIvPgo8Y2lyY2xlIGN4PSIyNzgiIGN5PSIyMjgiIHI9IjIuNSIgZmlsbD0iI2M5YTg0YyIvPgo8Y2lyY2xlIGN4PSIyOTAiIGN5PSIyMTAiIHI9IjMiIGZpbGw9IiNjOWE4NGMiLz4KPGNpcmNsZSBjeD0iMjc1IiBjeT0iMjQ4IiByPSIyIiBmaWxsPSIjYzlhODRjIi8+CjxjaXJjbGUgY3g9IjI2MCIgY3k9IjI1NSIgcj0iMi41IiBmaWxsPSIjYzlhODRjIi8+CjxsaW5lIHgxPSIyNDgiIHkxPSIyMDAiIHgyPSIyNjgiIHkyPSIyMTUiIHN0cm9rZT0iIzhiNjkxNCIgc3Ryb2tlLXdpZHRoPSIxIiBvcGFjaXR5PSIwLjYiLz4KPGxpbmUgeDE9IjI2OCIgeTE9IjIxNSIgeDI9IjI1NSIgeTI9IjIzNSIgc3Ryb2tlPSIjOGI2OTE0IiBzdHJva2Utd2lkdGg9IjEiIG9wYWNpdHk9IjAuNiIvPgo8bGluZSB4MT0iMjY4IiB5MT0iMjE1IiB4Mj0iMjkwIiB5Mj0iMjEwIiBzdHJva2U9IiM4YjY5MTQiIHN0cm9rZS13aWR0aD0iMSIgb3BhY2l0eT0iMC42Ii8+CjxsaW5lIHgxPSIyNTUiIHkxPSIyMzUiIHgyPSIyNzgiIHkyPSIyMjgiIHN0cm9rZT0iIzhiNjkxNCIgc3Ryb2tlLXdpZHRoPSIxIiBvcGFjaXR5PSIwLjYiLz4KPGxpbmUgeDE9IjI3OCIgeTE9IjIyOCIgeDI9IjI5MCIgeTI9IjIxMCIgc3Ryb2tlPSIjOGI2OTE0IiBzdHJva2Utd2lkdGg9IjEiIG9wYWNpdHk9IjAuNiIvPgo8bGluZSB4MT0iMjU1IiB5MT0iMjM1IiB4Mj0iMjYwIiB5Mj0iMjU1IiBzdHJva2U9IiM4YjY5MTQiIHN0cm9rZS13aWR0aD0iMSIgb3BhY2l0eT0iMC42Ii8+CjxsaW5lIHgxPSIyNjAiIHkxPSIyNTUiIHgyPSIyNzUiIHkyPSIyNDgiIHN0cm9rZT0iIzhiNjkxNCIgc3Ryb2tlLXdpZHRoPSIxIiBvcGFjaXR5PSIwLjYiLz4KPGxpbmUgeDE9IjQyMCIgeTE9IjE2MCIgeDI9IjQyMCIgeTI9IjI3MCIgc3Ryb2tlPSIjYzlhODRjIiBzdHJva2Utd2lkdGg9IjMiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgo8cG9seWdvbiBwb2ludHM9IjQyMCwxNTUgNDEzLDE3NSA0MjAsMTcwIDQyNywxNzUiIGZpbGw9IiNjOWE4NGMiLz4KPHJlY3QgeD0iNDA1IiB5PSIyMTgiIHdpZHRoPSIzMCIgaGVpZ2h0PSI0IiByeD0iMSIgZmlsbD0iI2M5YTg0YyIvPgo8cmVjdCB4PSI0MTciIHk9IjI2OCIgd2lkdGg9IjYiIGhlaWdodD0iMTAiIHJ4PSIyIiBmaWxsPSIjOGI2OTE0Ii8+CjxwYXRoIGQ9Ik0yNTAgMzA1IEwzMTAgMzIwIEwzMTAgMzcwIFEzMTAgNDAwIDI1MCA0MTUgUTE5MCA0MDAgMTkwIDM3MCBMMTkwIDMyMCBaIiBmaWxsPSJub25lIiBzdHJva2U9IiM4YjY5MTQiIHN0cm9rZS13aWR0aD0iMS41Ii8+CjxsaW5lIHgxPSIxOTAiIHkxPSIzNTUiIHgyPSIzMTAiIHkyPSIzNTUiIHN0cm9rZT0iIzRhMzgyMCIgc3Ryb2tlLXdpZHRoPSIxIi8+CjxsaW5lIHgxPSIyNTAiIHkxPSIzMjAiIHgyPSIyNTAiIHkyPSI0MTMiIHN0cm9rZT0iIzRhMzgyMCIgc3Ryb2tlLXdpZHRoPSIxIi8+CjxwYXRoIGQ9Ik0zNzUgMzIwIEwzODAgMzA1IEwzOTAgMzE1IEw0MDAgMzAwIEw0MTAgMzE1IEw0MjAgMzA1IEw0MjUgMzIwIFoiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2M5YTg0YyIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHJlY3QgeD0iMzczIiB5PSIzMjAiIHdpZHRoPSI1NCIgaGVpZ2h0PSIxMCIgcng9IjEiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2M5YTg0YyIgc3Ryb2tlLXdpZHRoPSIxLjUiLz4KPGNpcmNsZSBjeD0iNDAwIiBjeT0iMzAyIiByPSIzIiBmaWxsPSIjYzlhODRjIi8+CjxjaXJjbGUgY3g9IjM4MCIgY3k9IjMwNiIgcj0iMi41IiBmaWxsPSIjYzlhODRjIi8+CjxjaXJjbGUgY3g9IjQyMCIgY3k9IjMwNiIgcj0iMi41IiBmaWxsPSIjYzlhODRjIi8+CjxjaXJjbGUgY3g9IjM0MCIgY3k9IjM0MCIgcj0iNTUiIGZpbGw9IiMwZDBhMDciIHN0cm9rZT0iI2M5YTg0YyIgc3Ryb2tlLXdpZHRoPSIyIi8+CjxjaXJjbGUgY3g9IjM0MCIgY3k9IjM0MCIgcj0iNDYiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzRhMzgyMCIgc3Ryb2tlLXdpZHRoPSIxIi8+CjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDM0MCwzNDApIj4KICA8cG9seWdvbiBwb2ludHM9IjAsLTM4IDYsLTEwIDM4LDAgNiwxMCAwLDM4IC02LDEwIC0zOCwwIC02LC0xMCIgZmlsbD0iI2M5YTg0YyIgb3BhY2l0eT0iMC4xNSIvPgogIDxwb2x5Z29uIHBvaW50cz0iMCwtMjggNCwtOCAyOCwwIDQsOCAwLDI4IC00LDggLTI4LDAgLTQsLTgiIGZpbGw9IiNjOWE4NGMiIG9wYWNpdHk9IjAuMjUiLz4KICA8Y2lyY2xlIGN4PSIwIiBjeT0iMCIgcj0iMTIiIGZpbGw9IiMxMTBlMDkiIHN0cm9rZT0iI2M5YTg0YyIgc3Ryb2tlLXdpZHRoPSIxLjUiLz4KICA8Y2lyY2xlIGN4PSIwIiBjeT0iMCIgcj0iNiIgZmlsbD0iI2M5YTg0YyIvPgogIDxjaXJjbGUgY3g9IjAiIGN5PSIwIiByPSIzIiBmaWxsPSIjMGQwYTA3Ii8+CjwvZz4KPGRlZnM+CiAgPHBhdGggaWQ9InRvcEFyYyIgZD0iTSAxNDAsMzQwIEEgMjAwLDIwMCAwIDAsMSA1NDAsMzQwIi8+CiAgPHBhdGggaWQ9ImJvdEFyYyIgZD0iTSAxNzUsNDIwIEEgMjAwLDIwMCAwIDAsMCA1MDUsNDIwIi8+CjwvZGVmcz4KPHRleHQgZm9udC1mYW1pbHk9Ikdlb3JnaWEsIHNlcmlmIiBmb250LXNpemU9IjE1IiBmaWxsPSIjOGI2OTE0IiBsZXR0ZXItc3BhY2luZz0iNiI+CiAgPHRleHRQYXRoIGhyZWY9IiN0b3BBcmMiIHN0YXJ0T2Zmc2V0PSIxNSUiPkVNUElSRSAgT1JJT048L3RleHRQYXRoPgo8L3RleHQ+Cjx0ZXh0IGZvbnQtZmFtaWx5PSJHZW9yZ2lhLCBzZXJpZiIgZm9udC1zaXplPSIxMSIgZmlsbD0iIzVhNGEzNSIgbGV0dGVyLXNwYWNpbmc9IjMiPgogIDx0ZXh0UGF0aCBocmVmPSIjYm90QXJjIiBzdGFydE9mZnNldD0iMjAlIj5HQVJSWSdTIE1PRCAgTUVESUVWQUwgUlA8L3RleHRQYXRoPgo8L3RleHQ+Cjxwb2x5Z29uIHBvaW50cz0iMzQwLDI3NiAzNDUsMjg1IDM0MCwyOTQgMzM1LDI4NSIgZmlsbD0iI2M5YTg0YyIgb3BhY2l0eT0iMC44Ii8+Cjxwb2x5Z29uIHBvaW50cz0iMjAwLDM0MCAyMDksMzQ1IDIxOCwzNDAgMjA5LDMzNSIgZmlsbD0iIzhiNjkxNCIgb3BhY2l0eT0iMC44Ii8+Cjxwb2x5Z29uIHBvaW50cz0iNDYyLDM0MCA0NzEsMzQ1IDQ4MCwzNDAgNDcxLDMzNSIgZmlsbD0iIzhiNjkxNCIgb3BhY2l0eT0iMC44Ii8+Cgo8IS0tIExpZ25lIHPDqXBhcmF0cmljZSAtLT4KPGxpbmUgeDE9IjE4MCIgeTE9IjY2MCIgeDI9IjUwMCIgeTI9IjY2MCIgc3Ryb2tlPSIjNGEzODIwIiBzdHJva2Utd2lkdGg9IjEiLz4KPHBvbHlnb24gcG9pbnRzPSIzNDAsNjUyIDM0Niw2NjIgMzQwLDY3MiAzMzQsNjYyIiBmaWxsPSIjYzlhODRjIi8+Cgo8IS0tIE5vbSBPUklPTiBlbiBncmFuZCAtLT4KPHRleHQgeD0iMzQwIiB5PSI3MzAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJHZW9yZ2lhLCBzZXJpZiIgZm9udC1zaXplPSI5MCIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IiNjOWE4NGMiIGxldHRlci1zcGFjaW5nPSIxOCI+T1JJT048L3RleHQ+Cgo8IS0tIFNvdXMtdGl0cmUgLS0+Cjx0ZXh0IHg9IjM0MCIgeT0iNzY4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iR2VvcmdpYSwgc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGZpbGw9IiM1YTRhMzUiIGxldHRlci1zcGFjaW5nPSI4Ij5FTVBJUkUgIE1FRElFVkFMPC90ZXh0PgoKPCEtLSBQZXRpdHMgbG9zYW5nZXMgZW5jYWRyYW50IGxlIHRleHRlIC0tPgo8cG9seWdvbiBwb2ludHM9IjEwOCw3MjYgMTE1LDczNCAxMDgsNzQyIDEwMSw3MzQiIGZpbGw9IiM4YjY5MTQiIG9wYWNpdHk9IjAuNiIvPgo8cG9seWdvbiBwb2ludHM9IjU3Miw3MjYgNTc5LDczNCA1NzIsNzQyIDU2NSw3MzQiIGZpbGw9IiM4YjY5MTQiIG9wYWNpdHk9IjAuNiIvPgo8L3N2Zz4K" style="height:140px;width:auto;object-fit:contain;opacity:.9" alt="Empire Orion"/></div>
+    <div class="hero-badge">Serveur Garry's Mod — Médiéval RP</div>
+    <h1 class="hero-title">Empire Orion</h1>
+    <div class="hero-subtitle">Le Royaume des Étoiles</div>
+    <div class="ornament">
+      <div class="ornament-line"></div>
+      <div class="ornament-diamond"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <polygon points="8,1 14,5 14,11 8,15 2,11 2,5" fill="none" stroke="#c9a84c" stroke-width="1.2"/>
+  <line x1="2" y1="5" x2="14" y2="5" stroke="#8b6914" stroke-width="1"/>
+  <line x1="8" y1="1" x2="2" y2="5" stroke="#c9a84c" stroke-width="1"/>
+  <line x1="8" y1="1" x2="14" y2="5" stroke="#c9a84c" stroke-width="1"/>
+</svg></div>
+      <div class="ornament-line"></div>
+    </div>
+    <p class="hero-desc">Forge ton destin au sein du plus grand royaume médiéval de Garry's Mod. Commerce, guerre, politique — tout est entre tes mains dans l'Empire Orion.</p>
+    <div class="hero-btns">
+      <a href="#join" class="btn-gold">Rejoindre le Royaume</a>
+      <a href="#lore" class="btn-outline">Découvrir le Lore</a>
+    </div>
+  </div>
+  <div class="scroll-hint">↓ &nbsp; Descendre</div>
+</section>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat-item"><span class="stat-num">12</span><span class="stat-label">Guildes</span></div>
+  <div class="stat-item"><span class="stat-num">3</span><span class="stat-label">Royaumes</span></div>
+</div>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="section-header">
+    <div class="section-eyebrow">Ce qui nous définit</div>
+    <div class="section-title">L'Expérience Orion</div>
+    <div class="section-divider">
+      <div class="section-divider-line"></div>
+      <div class="section-divider-gem"></div>
+      <div class="section-divider-line"></div>
+    </div>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card">
+      <span class="feature-icon"><svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <line x1="18" y1="4" x2="18" y2="28" stroke="#c9a84c" stroke-width="2" stroke-linecap="round"/>
+  <line x1="10" y1="22" x2="26" y2="22" stroke="#c9a84c" stroke-width="2" stroke-linecap="round"/>
+  <polygon points="18,4 15,14 18,12 21,14" fill="#c9a84c" opacity="0.8"/>
+  <rect x="16" y="28" width="4" height="6" rx="1" fill="#8b6914"/>
+  <line x1="12" y1="22" x2="14" y2="24" stroke="#c9a84c" stroke-width="1.5"/>
+  <line x1="24" y1="22" x2="22" y2="24" stroke="#c9a84c" stroke-width="1.5"/>
+</svg></span>
+      <div class="feature-title">Guerre & Conquête</div>
+      <p class="feature-desc">Batailles épiques entre guildes pour le contrôle des terres, des ressources et des places fortes. Chaque guerre change la carte du royaume.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon"><svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="4" y="16" width="28" height="18" fill="none" stroke="#c9a84c" stroke-width="1.5"/>
+  <rect x="4" y="11" width="5" height="6" fill="none" stroke="#c9a84c" stroke-width="1.5"/>
+  <rect x="16" y="8" width="5" height="9" fill="none" stroke="#c9a84c" stroke-width="1.5"/>
+  <rect x="27" y="11" width="5" height="6" fill="none" stroke="#c9a84c" stroke-width="1.5"/>
+  <rect x="4" y="9" width="2" height="3" fill="#c9a84c"/>
+  <rect x="7" y="9" width="2" height="3" fill="#c9a84c"/>
+  <rect x="16" y="6" width="2" height="3" fill="#c9a84c"/>
+  <rect x="19" y="6" width="2" height="3" fill="#c9a84c"/>
+  <rect x="27" y="9" width="2" height="3" fill="#c9a84c"/>
+  <rect x="30" y="9" width="2" height="3" fill="#c9a84c"/>
+  <path d="M15 34 L15 25 Q18 22 21 25 L21 34" fill="none" stroke="#c9a84c" stroke-width="1.5"/>
+  <rect x="11" y="20" width="4" height="5" rx="2" fill="none" stroke="#c9a84c" stroke-width="1"/>
+  <rect x="21" y="20" width="4" height="5" rx="2" fill="none" stroke="#c9a84c" stroke-width="1"/>
+</svg></span>
+      <div class="feature-title">Construction</div>
+      <p class="feature-desc">Bâtis forteresses, tavernes et villages dans un monde médiéval persistant. Chaque pierre posée renforce ton emprise sur le territoire.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon"><svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M8 6 Q6 6 6 9 Q6 12 8 12 L28 12 Q30 12 30 9 Q30 6 28 6 Z" fill="none" stroke="#c9a84c" stroke-width="1.5"/>
+  <path d="M8 12 L8 30 Q8 32 10 32 L28 32 Q30 32 30 30 L30 12" fill="none" stroke="#c9a84c" stroke-width="1.5"/>
+  <path d="M8 30 Q6 30 6 33 Q6 36 8 36 Q10 36 10 33 Q10 30 8 30" fill="none" stroke="#c9a84c" stroke-width="1.5"/>
+  <line x1="13" y1="17" x2="24" y2="17" stroke="#8b6914" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="13" y1="21" x2="24" y2="21" stroke="#8b6914" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="13" y1="25" x2="20" y2="25" stroke="#8b6914" stroke-width="1.5" stroke-linecap="round"/>
+</svg></span>
+      <div class="feature-title">Lore Profond</div>
+      <p class="feature-desc">Un univers riche avec une histoire millénaire, des factions aux intérêts divergents et des événements scénarisés par l'équipe chaque semaine.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon"><svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="18" cy="18" r="13" fill="none" stroke="#c9a84c" stroke-width="1.5"/>
+  <circle cx="18" cy="18" r="10" fill="none" stroke="#8b6914" stroke-width="1"/>
+  <text x="18" y="23" text-anchor="middle" font-family="serif" font-size="14" fill="#c9a84c">✦</text>
+</svg></span>
+      <div class="feature-title">Économie Médiévale</div>
+      <p class="feature-desc">Commerce de ressources rares, artisanat, marchés ambulants. Deviens le marchand le plus influent de l'Empire.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon"><svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M4 26 L4 14 L11 20 L18 8 L25 20 L32 14 L32 26 Z" fill="none" stroke="#c9a84c" stroke-width="1.5" stroke-linejoin="round"/>
+  <rect x="4" y="26" width="28" height="4" rx="1" fill="none" stroke="#c9a84c" stroke-width="1.5"/>
+  <circle cx="18" cy="9" r="2" fill="#c9a84c"/>
+  <circle cx="4" cy="14" r="2" fill="#c9a84c"/>
+  <circle cx="32" cy="14" r="2" fill="#c9a84c"/>
+</svg></span>
+      <div class="feature-title">Politique & Noblesse</div>
+      <p class="feature-desc">Gravit les échelons de la noblesse, noue des alliances, trahis tes ennemis. Le trône d'Orion n'attend que son souverain.</p>
+    </div>
+    <div class="feature-card">
+      <span class="feature-icon"><svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <line x1="8" y1="28" x2="26" y2="10" stroke="#c9a84c" stroke-width="2" stroke-linecap="round"/>
+  <polygon points="26,10 22,12 24,14" fill="#c9a84c"/>
+  <line x1="12" y1="22" x2="16" y2="18" stroke="#8b6914" stroke-width="3" stroke-linecap="round"/>
+  <line x1="10" y1="26" x2="8" y2="28" stroke="#c9a84c" stroke-width="2" stroke-linecap="round"/>
+  <rect x="6" y="27" width="4" height="4" rx="1" fill="#8b6914" transform="rotate(-45 8 29)"/>
+</svg></span>
+      <div class="feature-title">Classes & Métiers</div>
+      <p class="feature-desc">Chevalier, Mage, Forgeron, Assassin, Marchand... Chaque classe a son rôle vital dans l'équilibre du royaume.</p>
+    </div>
+  </div>
+</section>
+
+<!-- LORE -->
+<section class="lore" id="lore">
+  <div class="lore-inner">
+    <div class="lore-text">
+      <h3>Histoire du Monde</h3>
+      <h2>L'Origine de l'Empire</h2>
+      <p>Il y a trois siècles, les étoiles d'Orion guidèrent sept clans nomades vers une terre fertile au creux des montagnes. Là, ils bâtirent la première cité — Auroris — et jurèrent de forger ensemble un empire qui durerait éternellement.</p>
+      <p>Aujourd'hui, l'Empire Orion s'étend sur trois royaumes distincts, chacun gouverné par une Maison Noble aux ambitions propres. La paix est fragile. La guerre, imminente.</p>
+      <a href="#">Lire la chronique complète →</a>
+    </div>
+    <div class="lore-visual">
+      <svg viewBox="0 0 200 220" width="180" style="display:block;margin:0 auto 20px">
+        <polygon points="100,10 190,60 190,160 100,210 10,160 10,60" fill="none" stroke="#4a3820" stroke-width="1"/>
+        <polygon points="100,25 175,68 175,152 100,195 25,152 25,68" fill="none" stroke="#2a1f10" stroke-width="1"/>
+        <circle cx="100" cy="110" r="40" fill="none" stroke="#4a3820" stroke-width="1"/>
+        <text x="100" y="97" text-anchor="middle" font-family="Cinzel Decorative, serif" font-size="11" fill="#c9a84c">EMPIRE</text>
+        <text x="100" y="115" text-anchor="middle" font-family="Cinzel Decorative, serif" font-size="16" fill="#c9a84c">✦</text>
+        <text x="100" y="132" text-anchor="middle" font-family="Cinzel Decorative, serif" font-size="11" fill="#c9a84c">ORION</text>
+        <circle cx="100" cy="25" r="4" fill="#c9a84c"/>
+        <circle cx="183" cy="67" r="4" fill="#c9a84c"/>
+        <circle cx="183" cy="153" r="4" fill="#c9a84c"/>
+        <circle cx="100" cy="195" r="4" fill="#c9a84c"/>
+        <circle cx="17" cy="153" r="4" fill="#c9a84c"/>
+        <circle cx="17" cy="67" r="4" fill="#c9a84c"/>
+      </svg>
+      <div class="lore-factions">
+        <div class="faction-item">
+          <div class="faction-dot" style="background:#c9a84c"></div>
+          <span class="faction-name">Maison Solaris</span>
+          <span class="faction-desc">Commerce & Diplomatie</span>
+        </div>
+        <div class="faction-item">
+          <div class="faction-dot" style="background:#6a9ac4"></div>
+          <span class="faction-name">Ordre des Veilleurs</span>
+          <span class="faction-desc">Guerre & Protection</span>
+        </div>
+        <div class="faction-item">
+          <div class="faction-dot" style="background:#8a6a9a"></div>
+          <span class="faction-name">Cercle Obscur</span>
+          <span class="faction-desc">Magie & Secrets</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NEWS -->
+<section class="news" id="news">
+  <div class="section-header">
+    <div class="section-eyebrow">Chroniques du Royaume</div>
+    <div class="section-title">Dernières Nouvelles</div>
+    <div class="section-divider">
+      <div class="section-divider-line"></div>
+      <div class="section-divider-gem"></div>
+      <div class="section-divider-line"></div>
+    </div>
+  </div>
+  <div class="news-grid">
+    <div class="news-card">
+      <div class="news-tag">Événement</div>
+      <div class="news-date">15 Avril 2026</div>
+      <div class="news-title">Tournoi du Solstice — Inscriptions Ouvertes</div>
+      <p class="news-body">Le grand tournoi annuel approche. Gloire, richesses et un titre de noblesse attendent les vainqueurs des épreuves.</p>
+    </div>
+    <div class="news-card">
+      <div class="news-tag">Mise à jour</div>
+      <div class="news-date">12 Avril 2026</div>
+      <div class="news-title">La Guilde des Forgerons Ouvre ses Portes</div>
+      <p class="news-body">Les artisans du fer sont désormais recrutés. Rejoins les rangs des meilleurs forgerons d'Orion et forge des armes légendaires.</p>
+    </div>
+    <div class="news-card">
+      <div class="news-tag">Guerre</div>
+      <div class="news-date">8 Avril 2026</div>
+      <div class="news-title">La Maison Solaris Déclare la Guerre aux Veilleurs</div>
+      <p class="news-body">Après des semaines de tensions diplomatiques, la guerre est déclarée. Les batailles pour le contrôle du Nord commencent.</p>
+    </div>
+  </div>
+</section>
+
+<!-- BOUTIQUE -->
+<section class="boutique" id="boutique">
+  <div class="section-header">
+    <div class="section-eyebrow">Soutenir l'Empire</div>
+    <div class="section-title">Boutique & Grades</div>
+    <div class="section-divider">
+      <div class="section-divider-line"></div>
+      <div class="section-divider-gem"></div>
+      <div class="section-divider-line"></div>
+    </div>
+  </div>
+
+  <div class="boutique-tabs">
+    <button class="boutique-tab active" onclick="switchShopTab('grades',this)">Grades VIP</button>
+    <button class="boutique-tab" onclick="switchShopTab('cosmetiques',this)">Cosmétiques</button>
+    <button class="boutique-tab" onclick="switchShopTab('vote',this)">Voter</button>
+  </div>
+
+  <!-- GRADES -->
+  <div id="shop-grades" class="boutique-grid">
+    <div class="grade-card">
+      <div class="grade-header">
+        <span class="grade-icon"><svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="24" cy="24" r="18" fill="none" stroke="#cd7f32" stroke-width="2"/>
+  <circle cx="24" cy="24" r="14" fill="none" stroke="#a0522d" stroke-width="1"/>
+  <path d="M18 16 L24 12 L30 16 L30 24 Q30 32 24 34 Q18 32 18 24 Z" fill="none" stroke="#cd7f32" stroke-width="1.5"/>
+  <text x="24" y="29" text-anchor="middle" font-family="serif" font-size="12" fill="#cd7f32" font-weight="bold">I</text>
+</svg></span>
+        <div class="grade-name">Écuyer</div>
+        <div class="grade-type">Grade cosmétique</div>
+      </div>
+      <div class="grade-price">
+        <div class="price-amount">5€</div>
+        <div class="price-period">Paiement unique</div>
+      </div>
+      <div class="grade-perks">
+        <div class="perk-item"><span class="perk-check"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <polygon points="8,1 14,5 14,11 8,15 2,11 2,5" fill="none" stroke="#c9a84c" stroke-width="1.2"/>
+  <line x1="2" y1="5" x2="14" y2="5" stroke="#8b6914" stroke-width="1"/>
+  <line x1="8" y1="1" x2="2" y2="5" stroke="#c9a84c" stroke-width="1"/>
+  <line x1="8" y1="1" x2="14" y2="5" stroke="#c9a84c" stroke-width="1"/>
+</svg></span> Préfixe [Écuyer] coloré</div>
+        <div class="perk-item"><span class="perk-check"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <polygon points="8,1 14,5 14,11 8,15 2,11 2,5" fill="none" stroke="#c9a84c" stroke-width="1.2"/>
+  <line x1="2" y1="5" x2="14" y2="5" stroke="#8b6914" stroke-width="1"/>
+  <line x1="8" y1="1" x2="2" y2="5" stroke="#c9a84c" stroke-width="1"/>
+  <line x1="8" y1="1" x2="14" y2="5" stroke="#c9a84c" stroke-width="1"/>
+</svg></span> Accès salon Discord VIP</div>
+        <div class="perk-item"><span class="perk-check"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <polygon points="8,1 14,5 14,11 8,15 2,11 2,5" fill="none" stroke="#c9a84c" stroke-width="1.2"/>
+  <line x1="2" y1="5" x2="14" y2="5" stroke="#8b6914" stroke-width="1"/>
+  <line x1="8" y1="1" x2="2" y2="5" stroke="#c9a84c" stroke-width="1"/>
+  <line x1="8" y1="1" x2="14" y2="5" stroke="#c9a84c" stroke-width="1"/>
+</svg></span> Badge exclusif sur le forum</div>
+        <div class="perk-item"><span class="perk-check no">—</span> <span style="opacity:.4">Particules cosmétiques</span></div>
+        <div class="perk-item"><span class="perk-check no">—</span> <span style="opacity:.4">Monture cosmétique</span></div>
+      </div>
+      <button class="grade-btn grade-btn-outline">Acheter sur Patreon</button>
+<div style="margin:0 24px 20px;padding:12px 14px;border:1px solid #2a1f10;background:#0d0a07;font-family:'Cinzel',serif;font-size:10px;letter-spacing:1px;color:#5a4a35;line-height:1.8">
+  <div style="color:#8b6914;margin-bottom:6px;font-size:10px;letter-spacing:2px;text-transform:uppercase">Activation manuelle</div>
+  1. Achète via Patreon<br>
+  2. Ouvre un ticket <span style="color:#c9a84c">#achats</span> sur Discord<br>
+  3. Montre ton mail de confirmation Patreon<br>
+  4. Un staff t'attribue le grade sous 24h
+</div>
+    </div>
+
+    <div class="grade-card popular">
+      <div class="popular-badge">✦ Le plus populaire <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <polygon points="8,1 14,5 14,11 8,15 2,11 2,5" fill="none" stroke="#c9a84c" stroke-width="1.2"/>
+  <line x1="2" y1="5" x2="14" y2="5" stroke="#8b6914" stroke-width="1"/>
+  <line x1="8" y1="1" x2="2" y2="5" stroke="#c9a84c" stroke-width="1"/>
+  <line x1="8" y1="1" x2="14" y2="5" stroke="#c9a84c" stroke-width="1"/>
+</svg></div>
+      <div class="grade-header" style="padding-top:40px">
+        <span class="grade-icon"><svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="24" cy="24" r="18" fill="none" stroke="#c9a84c" stroke-width="2"/>
+  <circle cx="24" cy="24" r="14" fill="none" stroke="#8b6914" stroke-width="1"/>
+  <path d="M16 20 L24 14 L32 20 L32 30 Q32 38 24 40 Q16 38 16 30 Z" fill="none" stroke="#c9a84c" stroke-width="2"/>
+  <circle cx="24" cy="28" r="4" fill="none" stroke="#c9a84c" stroke-width="1.5"/>
+  <line x1="24" y1="18" x2="24" y2="24" stroke="#c9a84c" stroke-width="1.5"/>
+</svg></span>
+        <div class="grade-name">Chevalier</div>
+        <div class="grade-type">Grade cosmétique</div>
+      </div>
+      <div class="grade-price">
+        <div class="price-amount">15€</div>
+        <div class="price-period">Paiement unique</div>
+      </div>
+      <div class="grade-perks">
+        <div class="perk-item"><span class="perk-check"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <polygon points="8,1 14,5 14,11 8,15 2,11 2,5" fill="none" stroke="#c9a84c" stroke-width="1.2"/>
+  <line x1="2" y1="5" x2="14" y2="5" stroke="#8b6914" stroke-width="1"/>
+  <line x1="8" y1="1" x2="2" y2="5" stroke="#c9a84c" stroke-width="1"/>
+  <line x1="8" y1="1" x2="14" y2="5" stroke="#c9a84c" stroke-width="1"/>
+</svg></span> Préfixe [Chevalier] doré</div>
+        <div class="perk-item"><span class="perk-check"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <polygon points="8,1 14,5 14,11 8,15 2,11 2,5" fill="none" stroke="#c9a84c" stroke-width="1.2"/>
+  <line x1="2" y1="5" x2="14" y2="5" stroke="#8b6914" stroke-width="1"/>
+  <line x1="8" y1="1" x2="2" y2="5" stroke="#c9a84c" stroke-width="1"/>
+  <line x1="8" y1="1" x2="14" y2="5" stroke="#c9a84c" stroke-width="1"/>
+</svg></span> Accès salon Discord VIP</div>
+        <div class="perk-item"><span class="perk-check"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <polygon points="8,1 14,5 14,11 8,15 2,11 2,5" fill="none" stroke="#c9a84c" stroke-width="1.2"/>
+  <line x1="2" y1="5" x2="14" y2="5" stroke="#8b6914" stroke-width="1"/>
+  <line x1="8" y1="1" x2="2" y2="5" stroke="#c9a84c" stroke-width="1"/>
+  <line x1="8" y1="1" x2="14" y2="5" stroke="#c9a84c" stroke-width="1"/>
+</svg></span> Badge exclusif sur le forum</div>
+        <div class="perk-item"><span class="perk-check"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <polygon points="8,1 14,5 14,11 8,15 2,11 2,5" fill="none" stroke="#c9a84c" stroke-width="1.2"/>
+  <line x1="2" y1="5" x2="14" y2="5" stroke="#8b6914" stroke-width="1"/>
+  <line x1="8" y1="1" x2="2" y2="5" stroke="#c9a84c" stroke-width="1"/>
+  <line x1="8" y1="1" x2="14" y2="5" stroke="#c9a84c" stroke-width="1"/>
+</svg></span> Particules cosmétiques</div>
+        <div class="perk-item"><span class="perk-check no">—</span> <span style="opacity:.4">Monture cosmétique</span></div>
+      </div>
+      <button class="grade-btn grade-btn-primary">Acheter sur Patreon</button>
+<div style="margin:0 24px 20px;padding:12px 14px;border:1px solid #2a1f10;background:#0d0a07;font-family:'Cinzel',serif;font-size:10px;letter-spacing:1px;color:#5a4a35;line-height:1.8">
+  <div style="color:#8b6914;margin-bottom:6px;font-size:10px;letter-spacing:2px;text-transform:uppercase">Activation manuelle</div>
+  1. Achète via Patreon<br>
+  2. Ouvre un ticket <span style="color:#c9a84c">#achats</span> sur Discord<br>
+  3. Montre ton mail de confirmation Patreon<br>
+  4. Un staff t'attribue le grade sous 24h
+</div>
+    </div>
+
+    <div class="grade-card">
+      <div class="grade-header">
+        <span class="grade-icon"><svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M4 26 L4 14 L11 20 L18 8 L25 20 L32 14 L32 26 Z" fill="none" stroke="#c9a84c" stroke-width="1.5" stroke-linejoin="round"/>
+  <rect x="4" y="26" width="28" height="4" rx="1" fill="none" stroke="#c9a84c" stroke-width="1.5"/>
+  <circle cx="18" cy="9" r="2" fill="#c9a84c"/>
+  <circle cx="4" cy="14" r="2" fill="#c9a84c"/>
+  <circle cx="32" cy="14" r="2" fill="#c9a84c"/>
+</svg></span>
+        <div class="grade-name">Seigneur</div>
+        <div class="grade-type">Grade cosmétique</div>
+      </div>
+      <div class="grade-price">
+        <div class="price-amount">30€</div>
+        <div class="price-period">Paiement unique</div>
+      </div>
+      <div class="grade-perks">
+        <div class="perk-item"><span class="perk-check"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <polygon points="8,1 14,5 14,11 8,15 2,11 2,5" fill="none" stroke="#c9a84c" stroke-width="1.2"/>
+  <line x1="2" y1="5" x2="14" y2="5" stroke="#8b6914" stroke-width="1"/>
+  <line x1="8" y1="1" x2="2" y2="5" stroke="#c9a84c" stroke-width="1"/>
+  <line x1="8" y1="1" x2="14" y2="5" stroke="#c9a84c" stroke-width="1"/>
+</svg></span> Préfixe [Seigneur] animé</div>
+        <div class="perk-item"><span class="perk-check"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <polygon points="8,1 14,5 14,11 8,15 2,11 2,5" fill="none" stroke="#c9a84c" stroke-width="1.2"/>
+  <line x1="2" y1="5" x2="14" y2="5" stroke="#8b6914" stroke-width="1"/>
+  <line x1="8" y1="1" x2="2" y2="5" stroke="#c9a84c" stroke-width="1"/>
+  <line x1="8" y1="1" x2="14" y2="5" stroke="#c9a84c" stroke-width="1"/>
+</svg></span> Accès salon Discord VIP</div>
+        <div class="perk-item"><span class="perk-check"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <polygon points="8,1 14,5 14,11 8,15 2,11 2,5" fill="none" stroke="#c9a84c" stroke-width="1.2"/>
+  <line x1="2" y1="5" x2="14" y2="5" stroke="#8b6914" stroke-width="1"/>
+  <line x1="8" y1="1" x2="2" y2="5" stroke="#c9a84c" stroke-width="1"/>
+  <line x1="8" y1="1" x2="14" y2="5" stroke="#c9a84c" stroke-width="1"/>
+</svg></span> Badge exclusif sur le forum</div>
+        <div class="perk-item"><span class="perk-check"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <polygon points="8,1 14,5 14,11 8,15 2,11 2,5" fill="none" stroke="#c9a84c" stroke-width="1.2"/>
+  <line x1="2" y1="5" x2="14" y2="5" stroke="#8b6914" stroke-width="1"/>
+  <line x1="8" y1="1" x2="2" y2="5" stroke="#c9a84c" stroke-width="1"/>
+  <line x1="8" y1="1" x2="14" y2="5" stroke="#c9a84c" stroke-width="1"/>
+</svg></span> Particules cosmétiques</div>
+        <div class="perk-item"><span class="perk-check"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <polygon points="8,1 14,5 14,11 8,15 2,11 2,5" fill="none" stroke="#c9a84c" stroke-width="1.2"/>
+  <line x1="2" y1="5" x2="14" y2="5" stroke="#8b6914" stroke-width="1"/>
+  <line x1="8" y1="1" x2="2" y2="5" stroke="#c9a84c" stroke-width="1"/>
+  <line x1="8" y1="1" x2="14" y2="5" stroke="#c9a84c" stroke-width="1"/>
+</svg></span> Monture cosmétique exclusive</div>
+      </div>
+      <button class="grade-btn grade-btn-outline">Acheter sur Patreon</button>
+<div style="margin:0 24px 20px;padding:12px 14px;border:1px solid #2a1f10;background:#0d0a07;font-family:'Cinzel',serif;font-size:10px;letter-spacing:1px;color:#5a4a35;line-height:1.8">
+  <div style="color:#8b6914;margin-bottom:6px;font-size:10px;letter-spacing:2px;text-transform:uppercase">Activation manuelle</div>
+  1. Achète via Patreon<br>
+  2. Ouvre un ticket <span style="color:#c9a84c">#achats</span> sur Discord<br>
+  3. Montre ton mail de confirmation Patreon<br>
+  4. Un staff t'attribue le grade sous 24h
+</div>
+    </div>
+  </div>
+
+  <!-- COSMETIQUES -->
+  <div id="shop-cosmetiques" class="boutique-grid" style="display:none">
+    <div class="grade-card">
+      <div class="grade-header">
+        <span class="grade-icon"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <polygon points="10,2 12,8 18,8 13,12 15,18 10,14 5,18 7,12 2,8 8,8" fill="#c9a84c" opacity="0.9"/>
+</svg></span>
+        <div class="grade-name">Aura Dorée</div>
+        <div class="grade-type">Cosmétique particule</div>
+      </div>
+      <div class="grade-price"><div class="price-amount">8€</div><div class="price-period">Paiement unique</div></div>
+      <div class="grade-perks">
+        <div class="perk-item"><span class="perk-check"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <polygon points="8,1 14,5 14,11 8,15 2,11 2,5" fill="none" stroke="#c9a84c" stroke-width="1.2"/>
+  <line x1="2" y1="5" x2="14" y2="5" stroke="#8b6914" stroke-width="1"/>
+  <line x1="8" y1="1" x2="2" y2="5" stroke="#c9a84c" stroke-width="1"/>
+  <line x1="8" y1="1" x2="14" y2="5" stroke="#c9a84c" stroke-width="1"/>
+</svg></span> Particules dorées autour de ton personnage</div>
+        <div class="perk-item"><span class="perk-check"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <polygon points="8,1 14,5 14,11 8,15 2,11 2,5" fill="none" stroke="#c9a84c" stroke-width="1.2"/>
+  <line x1="2" y1="5" x2="14" y2="5" stroke="#8b6914" stroke-width="1"/>
+  <line x1="8" y1="1" x2="2" y2="5" stroke="#c9a84c" stroke-width="1"/>
+  <line x1="8" y1="1" x2="14" y2="5" stroke="#c9a84c" stroke-width="1"/>
+</svg></span> Effet visible par tous les joueurs</div>
+      </div>
+      <button class="grade-btn grade-btn-outline">Acheter sur Patreon</button>
+<div style="margin:0 24px 20px;padding:12px 14px;border:1px solid #2a1f10;background:#0d0a07;font-family:'Cinzel',serif;font-size:10px;letter-spacing:1px;color:#5a4a35;line-height:1.8">
+  <div style="color:#8b6914;margin-bottom:6px;font-size:10px;letter-spacing:2px;text-transform:uppercase">Activation manuelle</div>
+  1. Achète via Patreon<br>
+  2. Ouvre un ticket <span style="color:#c9a84c">#achats</span> sur Discord<br>
+  3. Montre ton mail de confirmation Patreon<br>
+  4. Un staff t'attribue le grade sous 24h
+</div>
+    </div>
+    <div class="grade-card">
+      <div class="grade-header">
+        <span class="grade-icon"><svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M8 28 Q8 22 12 20 Q14 18 16 16 Q18 10 22 10 Q28 10 28 16 Q30 18 30 22 L28 28" fill="none" stroke="#c9a84c" stroke-width="1.5" stroke-linejoin="round"/>
+  <path d="M22 10 Q24 6 26 6 Q28 6 27 10" fill="none" stroke="#c9a84c" stroke-width="1.5"/>
+  <line x1="12" y1="28" x2="11" y2="34" stroke="#c9a84c" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="16" y1="28" x2="15" y2="34" stroke="#c9a84c" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="26" y1="28" x2="25" y2="34" stroke="#c9a84c" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="30" y1="26" x2="31" y2="32" stroke="#c9a84c" stroke-width="1.5" stroke-linecap="round"/>
+  <circle cx="25" cy="13" r="2" fill="none" stroke="#c9a84c" stroke-width="1"/>
+</svg></span>
+        <div class="grade-name">Destrier Noir</div>
+        <div class="grade-type">Monture cosmétique</div>
+      </div>
+      <div class="grade-price"><div class="price-amount">12€</div><div class="price-period">Paiement unique</div></div>
+      <div class="grade-perks">
+        <div class="perk-item"><span class="perk-check"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <polygon points="8,1 14,5 14,11 8,15 2,11 2,5" fill="none" stroke="#c9a84c" stroke-width="1.2"/>
+  <line x1="2" y1="5" x2="14" y2="5" stroke="#8b6914" stroke-width="1"/>
+  <line x1="8" y1="1" x2="2" y2="5" stroke="#c9a84c" stroke-width="1"/>
+  <line x1="8" y1="1" x2="14" y2="5" stroke="#c9a84c" stroke-width="1"/>
+</svg></span> Monture cosmétique exclusive</div>
+        <div class="perk-item"><span class="perk-check"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <polygon points="8,1 14,5 14,11 8,15 2,11 2,5" fill="none" stroke="#c9a84c" stroke-width="1.2"/>
+  <line x1="2" y1="5" x2="14" y2="5" stroke="#8b6914" stroke-width="1"/>
+  <line x1="8" y1="1" x2="2" y2="5" stroke="#c9a84c" stroke-width="1"/>
+  <line x1="8" y1="1" x2="14" y2="5" stroke="#c9a84c" stroke-width="1"/>
+</svg></span> Aucun avantage de jeu</div>
+      </div>
+      <button class="grade-btn grade-btn-outline">Acheter sur Patreon</button>
+<div style="margin:0 24px 20px;padding:12px 14px;border:1px solid #2a1f10;background:#0d0a07;font-family:'Cinzel',serif;font-size:10px;letter-spacing:1px;color:#5a4a35;line-height:1.8">
+  <div style="color:#8b6914;margin-bottom:6px;font-size:10px;letter-spacing:2px;text-transform:uppercase">Activation manuelle</div>
+  1. Achète via Patreon<br>
+  2. Ouvre un ticket <span style="color:#c9a84c">#achats</span> sur Discord<br>
+  3. Montre ton mail de confirmation Patreon<br>
+  4. Un staff t'attribue le grade sous 24h
+</div>
+    </div>
+    <div class="grade-card">
+      <div class="grade-header">
+        <span class="grade-icon"><svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <line x1="10" y1="4" x2="10" y2="34" stroke="#c9a84c" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M10 6 L28 6 L28 22 L10 22 Z" fill="none" stroke="#c9a84c" stroke-width="1.5"/>
+  <line x1="14" y1="11" x2="24" y2="11" stroke="#8b6914" stroke-width="1"/>
+  <line x1="14" y1="15" x2="24" y2="15" stroke="#8b6914" stroke-width="1"/>
+  <polygon points="18,8 20,11 18,10 16,11" fill="#c9a84c" opacity="0.6"/>
+</svg></span>
+        <div class="grade-name">Pack Héraldique</div>
+        <div class="grade-type">Pack cosmétique</div>
+      </div>
+      <div class="grade-price"><div class="price-amount">20€</div><div class="price-period">Paiement unique</div></div>
+      <div class="grade-perks">
+        <div class="perk-item"><span class="perk-check"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <polygon points="8,1 14,5 14,11 8,15 2,11 2,5" fill="none" stroke="#c9a84c" stroke-width="1.2"/>
+  <line x1="2" y1="5" x2="14" y2="5" stroke="#8b6914" stroke-width="1"/>
+  <line x1="8" y1="1" x2="2" y2="5" stroke="#c9a84c" stroke-width="1"/>
+  <line x1="8" y1="1" x2="14" y2="5" stroke="#c9a84c" stroke-width="1"/>
+</svg></span> Bannière personnalisée</div>
+        <div class="perk-item"><span class="perk-check"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <polygon points="8,1 14,5 14,11 8,15 2,11 2,5" fill="none" stroke="#c9a84c" stroke-width="1.2"/>
+  <line x1="2" y1="5" x2="14" y2="5" stroke="#8b6914" stroke-width="1"/>
+  <line x1="8" y1="1" x2="2" y2="5" stroke="#c9a84c" stroke-width="1"/>
+  <line x1="8" y1="1" x2="14" y2="5" stroke="#c9a84c" stroke-width="1"/>
+</svg></span> Titre de noblesse custom</div>
+        <div class="perk-item"><span class="perk-check"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <polygon points="8,1 14,5 14,11 8,15 2,11 2,5" fill="none" stroke="#c9a84c" stroke-width="1.2"/>
+  <line x1="2" y1="5" x2="14" y2="5" stroke="#8b6914" stroke-width="1"/>
+  <line x1="8" y1="1" x2="2" y2="5" stroke="#c9a84c" stroke-width="1"/>
+  <line x1="8" y1="1" x2="14" y2="5" stroke="#c9a84c" stroke-width="1"/>
+</svg></span> Blason unique sur le forum</div>
+      </div>
+      <button class="grade-btn grade-btn-primary">Acheter sur Patreon</button>
+<div style="margin:0 24px 20px;padding:12px 14px;border:1px solid #2a1f10;background:#0d0a07;font-family:'Cinzel',serif;font-size:10px;letter-spacing:1px;color:#5a4a35;line-height:1.8">
+  <div style="color:#8b6914;margin-bottom:6px;font-size:10px;letter-spacing:2px;text-transform:uppercase">Activation manuelle</div>
+  1. Achète via Patreon<br>
+  2. Ouvre un ticket <span style="color:#c9a84c">#achats</span> sur Discord<br>
+  3. Montre ton mail de confirmation Patreon<br>
+  4. Un staff t'attribue le grade sous 24h
+</div>
+    </div>
+  </div>
+
+  <!-- VOTE -->
+  <div id="shop-vote" style="display:none">
+    <div class="vote-section">
+      <div class="vote-title">Voter pour l'Empire</div>
+      <p class="vote-desc">Vote quotidiennement sur les sites de classement pour aider l'Empire à grandir.<br>Chaque vote te récompense avec des <strong style="color:var(--gold)">Orions</strong> (monnaie cosmétique).</p>
+      <div class="vote-sites">
+        <a href="#" class="vote-site">GameTracker</a>
+        <a href="#" class="vote-site">Top-Serveurs GMod</a>
+        <a href="#" class="vote-site">Serveur-GG</a>
+        <a href="#" class="vote-site">TopG</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- PATREON -->
+  <div class="patreon-banner">
+    <div class="patreon-icon"><svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M8 6 L8 30" stroke="#ff8066" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="22" cy="16" r="10" fill="none" stroke="#ff8066" stroke-width="2"/>
+  <circle cx="22" cy="16" r="6" fill="none" stroke="#ff6347" stroke-width="1"/>
+</svg></div>
+    <div class="patreon-text">
+      <h4>Soutenir via Patreon</h4>
+      <p>Tu peux soutenir le serveur via Patreon pour nous aider à payer l'hébergement. Les contreparties sont uniquement cosmétiques et non-avantageuses — l'Empire reste équitable pour tous.</p>
+    </div>
+    <a href="#" class="patreon-btn">Voir le Patreon</a>
+  </div>
+</section>
+
+
+<!-- REJOINDRE -->
+<section class="join" id="join">
+  <div class="join-inner">
+    <h2>Rejoins l'Empire</h2>
+    <p>Des milliers de joueurs t'attendent. Ton destin commence aujourd'hui.</p>
+    <div class="join-ip" onclick="copyIp()">
+      <span>Adresse du serveur</span>
+      play.empire-orion.fr:27015
+    </div>
+    <br>
+    <a href="#" class="btn-gold">Rejoindre maintenant</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="logo"><img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjYwMCIgdmlld0JveD0iMCAwIDY4MCA4MDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI2ODAiIGhlaWdodD0iODAwIiBmaWxsPSIjMGQwYTA3Ii8+CjxjaXJjbGUgY3g9IjM0MCIgY3k9IjM0MCIgcj0iMzAwIiBmaWxsPSIjMGQwYTA3IiBzdHJva2U9IiNjOWE4NGMiIHN0cm9rZS13aWR0aD0iMyIvPgo8Y2lyY2xlIGN4PSIzNDAiIGN5PSIzNDAiIHI9IjI5MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNGEzODIwIiBzdHJva2Utd2lkdGg9IjEiLz4KPGNpcmNsZSBjeD0iMzQwIiBjeT0iMzQwIiByPSIyNzAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzJhMWYxMCIgc3Ryb2tlLXdpZHRoPSIxIi8+Cjxwb2x5Z29uIHBvaW50cz0iMzQwLDM4IDM0OCw1MCAzNDAsNjIgMzMyLDUwIiBmaWxsPSIjYzlhODRjIi8+Cjxwb2x5Z29uIHBvaW50cz0iMzQwLDYxOCAzNDgsNjMwIDM0MCw2NDIgMzMyLDYzMCIgZmlsbD0iI2M5YTg0YyIvPgo8cG9seWdvbiBwb2ludHM9IjM4LDM0MCA1MCwzNDggNjIsMzQwIDUwLDMzMiIgZmlsbD0iI2M5YTg0YyIvPgo8cG9seWdvbiBwb2ludHM9IjYxOCwzNDAgNjMwLDM0OCA2NDIsMzQwIDYzMCwzMzIiIGZpbGw9IiNjOWE4NGMiLz4KPHBvbHlnb24gcG9pbnRzPSIxMjYsMTI2IDEzMiwxMzQgMTI2LDE0MiAxMjAsMTM0IiBmaWxsPSIjOGI2OTE0Ii8+Cjxwb2x5Z29uIHBvaW50cz0iNTU0LDEyNiA1NjAsMTM0IDU1NCwxNDIgNTQ4LDEzNCIgZmlsbD0iIzhiNjkxNCIvPgo8cG9seWdvbiBwb2ludHM9IjEyNiw1NTQgMTMyLDU2MiAxMjYsNTcwIDEyMCw1NjIiIGZpbGw9IiM4YjY5MTQiLz4KPHBvbHlnb24gcG9pbnRzPSI1NTQsNTU0IDU2MCw1NjIgNTU0LDU3MCA1NDgsNTYyIiBmaWxsPSIjOGI2OTE0Ii8+CjxsaW5lIHgxPSIzNDAiIHkxPSI2MCIgeDI9IjM0MCIgeTI9IjEzMCIgc3Ryb2tlPSIjNGEzODIwIiBzdHJva2Utd2lkdGg9IjEiLz4KPGxpbmUgeDE9IjM0MCIgeTE9IjU1MCIgeDI9IjM0MCIgeTI9IjYyMCIgc3Ryb2tlPSIjNGEzODIwIiBzdHJva2Utd2lkdGg9IjEiLz4KPGxpbmUgeDE9IjYwIiB5MT0iMzQwIiB4Mj0iMTMwIiB5Mj0iMzQwIiBzdHJva2U9IiM0YTM4MjAiIHN0cm9rZS13aWR0aD0iMSIvPgo8bGluZSB4MT0iNTUwIiB5MT0iMzQwIiB4Mj0iNjIwIiB5Mj0iMzQwIiBzdHJva2U9IiM0YTM4MjAiIHN0cm9rZS13aWR0aD0iMSIvPgo8cGF0aCBkPSJNMzQwIDEzMCBMNTAwIDE3MCBMNTAwIDMyMCBRNTAwIDQ0MCAzNDAgNTIwIFExODAgNDQwIDE4MCAzMjAgTDE4MCAxNzAgWiIgZmlsbD0iIzExMGUwOSIgc3Ryb2tlPSIjYzlhODRjIiBzdHJva2Utd2lkdGg9IjIuNSIvPgo8cGF0aCBkPSJNMzQwIDE1MCBMNDgwIDE4NiBMNDgwIDMxOCBRNDgwIDQyNCAzNDAgNDk2IFEyMDAgNDI0IDIwMCAzMTggTDIwMCAxODYgWiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNGEzODIwIiBzdHJva2Utd2lkdGg9IjEiLz4KPGxpbmUgeDE9IjIwMCIgeTE9IjI4MCIgeDI9IjQ4MCIgeTI9IjI4MCIgc3Ryb2tlPSIjNGEzODIwIiBzdHJva2Utd2lkdGg9IjEiLz4KPGxpbmUgeDE9IjM0MCIgeTE9IjE1MiIgeDI9IjM0MCIgeTI9IjQ5NCIgc3Ryb2tlPSIjNGEzODIwIiBzdHJva2Utd2lkdGg9IjEiLz4KPGNpcmNsZSBjeD0iMjQ4IiBjeT0iMjAwIiByPSI0IiBmaWxsPSIjYzlhODRjIi8+CjxjaXJjbGUgY3g9IjI2OCIgY3k9IjIxNSIgcj0iMyIgZmlsbD0iI2M5YTg0YyIvPgo8Y2lyY2xlIGN4PSIyNTUiIGN5PSIyMzUiIHI9IjMuNSIgZmlsbD0iI2M5YTg0YyIvPgo8Y2lyY2xlIGN4PSIyNzgiIGN5PSIyMjgiIHI9IjIuNSIgZmlsbD0iI2M5YTg0YyIvPgo8Y2lyY2xlIGN4PSIyOTAiIGN5PSIyMTAiIHI9IjMiIGZpbGw9IiNjOWE4NGMiLz4KPGNpcmNsZSBjeD0iMjc1IiBjeT0iMjQ4IiByPSIyIiBmaWxsPSIjYzlhODRjIi8+CjxjaXJjbGUgY3g9IjI2MCIgY3k9IjI1NSIgcj0iMi41IiBmaWxsPSIjYzlhODRjIi8+CjxsaW5lIHgxPSIyNDgiIHkxPSIyMDAiIHgyPSIyNjgiIHkyPSIyMTUiIHN0cm9rZT0iIzhiNjkxNCIgc3Ryb2tlLXdpZHRoPSIxIiBvcGFjaXR5PSIwLjYiLz4KPGxpbmUgeDE9IjI2OCIgeTE9IjIxNSIgeDI9IjI1NSIgeTI9IjIzNSIgc3Ryb2tlPSIjOGI2OTE0IiBzdHJva2Utd2lkdGg9IjEiIG9wYWNpdHk9IjAuNiIvPgo8bGluZSB4MT0iMjY4IiB5MT0iMjE1IiB4Mj0iMjkwIiB5Mj0iMjEwIiBzdHJva2U9IiM4YjY5MTQiIHN0cm9rZS13aWR0aD0iMSIgb3BhY2l0eT0iMC42Ii8+CjxsaW5lIHgxPSIyNTUiIHkxPSIyMzUiIHgyPSIyNzgiIHkyPSIyMjgiIHN0cm9rZT0iIzhiNjkxNCIgc3Ryb2tlLXdpZHRoPSIxIiBvcGFjaXR5PSIwLjYiLz4KPGxpbmUgeDE9IjI3OCIgeTE9IjIyOCIgeDI9IjI5MCIgeTI9IjIxMCIgc3Ryb2tlPSIjOGI2OTE0IiBzdHJva2Utd2lkdGg9IjEiIG9wYWNpdHk9IjAuNiIvPgo8bGluZSB4MT0iMjU1IiB5MT0iMjM1IiB4Mj0iMjYwIiB5Mj0iMjU1IiBzdHJva2U9IiM4YjY5MTQiIHN0cm9rZS13aWR0aD0iMSIgb3BhY2l0eT0iMC42Ii8+CjxsaW5lIHgxPSIyNjAiIHkxPSIyNTUiIHgyPSIyNzUiIHkyPSIyNDgiIHN0cm9rZT0iIzhiNjkxNCIgc3Ryb2tlLXdpZHRoPSIxIiBvcGFjaXR5PSIwLjYiLz4KPGxpbmUgeDE9IjQyMCIgeTE9IjE2MCIgeDI9IjQyMCIgeTI9IjI3MCIgc3Ryb2tlPSIjYzlhODRjIiBzdHJva2Utd2lkdGg9IjMiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgo8cG9seWdvbiBwb2ludHM9IjQyMCwxNTUgNDEzLDE3NSA0MjAsMTcwIDQyNywxNzUiIGZpbGw9IiNjOWE4NGMiLz4KPHJlY3QgeD0iNDA1IiB5PSIyMTgiIHdpZHRoPSIzMCIgaGVpZ2h0PSI0IiByeD0iMSIgZmlsbD0iI2M5YTg0YyIvPgo8cmVjdCB4PSI0MTciIHk9IjI2OCIgd2lkdGg9IjYiIGhlaWdodD0iMTAiIHJ4PSIyIiBmaWxsPSIjOGI2OTE0Ii8+CjxwYXRoIGQ9Ik0yNTAgMzA1IEwzMTAgMzIwIEwzMTAgMzcwIFEzMTAgNDAwIDI1MCA0MTUgUTE5MCA0MDAgMTkwIDM3MCBMMTkwIDMyMCBaIiBmaWxsPSJub25lIiBzdHJva2U9IiM4YjY5MTQiIHN0cm9rZS13aWR0aD0iMS41Ii8+CjxsaW5lIHgxPSIxOTAiIHkxPSIzNTUiIHgyPSIzMTAiIHkyPSIzNTUiIHN0cm9rZT0iIzRhMzgyMCIgc3Ryb2tlLXdpZHRoPSIxIi8+CjxsaW5lIHgxPSIyNTAiIHkxPSIzMjAiIHgyPSIyNTAiIHkyPSI0MTMiIHN0cm9rZT0iIzRhMzgyMCIgc3Ryb2tlLXdpZHRoPSIxIi8+CjxwYXRoIGQ9Ik0zNzUgMzIwIEwzODAgMzA1IEwzOTAgMzE1IEw0MDAgMzAwIEw0MTAgMzE1IEw0MjAgMzA1IEw0MjUgMzIwIFoiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2M5YTg0YyIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPHJlY3QgeD0iMzczIiB5PSIzMjAiIHdpZHRoPSI1NCIgaGVpZ2h0PSIxMCIgcng9IjEiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2M5YTg0YyIgc3Ryb2tlLXdpZHRoPSIxLjUiLz4KPGNpcmNsZSBjeD0iNDAwIiBjeT0iMzAyIiByPSIzIiBmaWxsPSIjYzlhODRjIi8+CjxjaXJjbGUgY3g9IjM4MCIgY3k9IjMwNiIgcj0iMi41IiBmaWxsPSIjYzlhODRjIi8+CjxjaXJjbGUgY3g9IjQyMCIgY3k9IjMwNiIgcj0iMi41IiBmaWxsPSIjYzlhODRjIi8+CjxjaXJjbGUgY3g9IjM0MCIgY3k9IjM0MCIgcj0iNTUiIGZpbGw9IiMwZDBhMDciIHN0cm9rZT0iI2M5YTg0YyIgc3Ryb2tlLXdpZHRoPSIyIi8+CjxjaXJjbGUgY3g9IjM0MCIgY3k9IjM0MCIgcj0iNDYiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzRhMzgyMCIgc3Ryb2tlLXdpZHRoPSIxIi8+CjxnIHRyYW5zZm9ybT0idHJhbnNsYXRlKDM0MCwzNDApIj4KICA8cG9seWdvbiBwb2ludHM9IjAsLTM4IDYsLTEwIDM4LDAgNiwxMCAwLDM4IC02LDEwIC0zOCwwIC02LC0xMCIgZmlsbD0iI2M5YTg0YyIgb3BhY2l0eT0iMC4xNSIvPgogIDxwb2x5Z29uIHBvaW50cz0iMCwtMjggNCwtOCAyOCwwIDQsOCAwLDI4IC00LDggLTI4LDAgLTQsLTgiIGZpbGw9IiNjOWE4NGMiIG9wYWNpdHk9IjAuMjUiLz4KICA8Y2lyY2xlIGN4PSIwIiBjeT0iMCIgcj0iMTIiIGZpbGw9IiMxMTBlMDkiIHN0cm9rZT0iI2M5YTg0YyIgc3Ryb2tlLXdpZHRoPSIxLjUiLz4KICA8Y2lyY2xlIGN4PSIwIiBjeT0iMCIgcj0iNiIgZmlsbD0iI2M5YTg0YyIvPgogIDxjaXJjbGUgY3g9IjAiIGN5PSIwIiByPSIzIiBmaWxsPSIjMGQwYTA3Ii8+CjwvZz4KPGRlZnM+CiAgPHBhdGggaWQ9InRvcEFyYyIgZD0iTSAxNDAsMzQwIEEgMjAwLDIwMCAwIDAsMSA1NDAsMzQwIi8+CiAgPHBhdGggaWQ9ImJvdEFyYyIgZD0iTSAxNzUsNDIwIEEgMjAwLDIwMCAwIDAsMCA1MDUsNDIwIi8+CjwvZGVmcz4KPHRleHQgZm9udC1mYW1pbHk9Ikdlb3JnaWEsIHNlcmlmIiBmb250LXNpemU9IjE1IiBmaWxsPSIjOGI2OTE0IiBsZXR0ZXItc3BhY2luZz0iNiI+CiAgPHRleHRQYXRoIGhyZWY9IiN0b3BBcmMiIHN0YXJ0T2Zmc2V0PSIxNSUiPkVNUElSRSAgT1JJT048L3RleHRQYXRoPgo8L3RleHQ+Cjx0ZXh0IGZvbnQtZmFtaWx5PSJHZW9yZ2lhLCBzZXJpZiIgZm9udC1zaXplPSIxMSIgZmlsbD0iIzVhNGEzNSIgbGV0dGVyLXNwYWNpbmc9IjMiPgogIDx0ZXh0UGF0aCBocmVmPSIjYm90QXJjIiBzdGFydE9mZnNldD0iMjAlIj5HQVJSWSdTIE1PRCAgTUVESUVWQUwgUlA8L3RleHRQYXRoPgo8L3RleHQ+Cjxwb2x5Z29uIHBvaW50cz0iMzQwLDI3NiAzNDUsMjg1IDM0MCwyOTQgMzM1LDI4NSIgZmlsbD0iI2M5YTg0YyIgb3BhY2l0eT0iMC44Ii8+Cjxwb2x5Z29uIHBvaW50cz0iMjAwLDM0MCAyMDksMzQ1IDIxOCwzNDAgMjA5LDMzNSIgZmlsbD0iIzhiNjkxNCIgb3BhY2l0eT0iMC44Ii8+Cjxwb2x5Z29uIHBvaW50cz0iNDYyLDM0MCA0NzEsMzQ1IDQ4MCwzNDAgNDcxLDMzNSIgZmlsbD0iIzhiNjkxNCIgb3BhY2l0eT0iMC44Ii8+Cgo8IS0tIExpZ25lIHPDqXBhcmF0cmljZSAtLT4KPGxpbmUgeDE9IjE4MCIgeTE9IjY2MCIgeDI9IjUwMCIgeTI9IjY2MCIgc3Ryb2tlPSIjNGEzODIwIiBzdHJva2Utd2lkdGg9IjEiLz4KPHBvbHlnb24gcG9pbnRzPSIzNDAsNjUyIDM0Niw2NjIgMzQwLDY3MiAzMzQsNjYyIiBmaWxsPSIjYzlhODRjIi8+Cgo8IS0tIE5vbSBPUklPTiBlbiBncmFuZCAtLT4KPHRleHQgeD0iMzQwIiB5PSI3MzAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJHZW9yZ2lhLCBzZXJpZiIgZm9udC1zaXplPSI5MCIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IiNjOWE4NGMiIGxldHRlci1zcGFjaW5nPSIxOCI+T1JJT048L3RleHQ+Cgo8IS0tIFNvdXMtdGl0cmUgLS0+Cjx0ZXh0IHg9IjM0MCIgeT0iNzY4IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iR2VvcmdpYSwgc2VyaWYiIGZvbnQtc2l6ZT0iMTMiIGZpbGw9IiM1YTRhMzUiIGxldHRlci1zcGFjaW5nPSI4Ij5FTVBJUkUgIE1FRElFVkFMPC90ZXh0PgoKPCEtLSBQZXRpdHMgbG9zYW5nZXMgZW5jYWRyYW50IGxlIHRleHRlIC0tPgo8cG9seWdvbiBwb2ludHM9IjEwOCw3MjYgMTE1LDczNCAxMDgsNzQyIDEwMSw3MzQiIGZpbGw9IiM4YjY5MTQiIG9wYWNpdHk9IjAuNiIvPgo8cG9seWdvbiBwb2ludHM9IjU3Miw3MjYgNTc5LDczNCA1NzIsNzQyIDU2NSw3MzQiIGZpbGw9IiM4YjY5MTQiIG9wYWNpdHk9IjAuNiIvPgo8L3N2Zz4K" style="height:60px;width:auto;object-fit:contain" alt="Empire Orion"/></div>
+        <p>Serveur Garry's Mod médiéval RP. Forgez votre destin dans le royaume des étoiles.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Navigation</h4>
+        <a href="#home">Accueil</a>
+        <a href="#lore">Lore</a>
+        <a href="#features">Gameplay</a>
+        <a href="#news">Actualités</a>
+      </div>
+      <div class="footer-col">
+        <h4>Communauté</h4>
+        <a href="#">Discord</a>
+        <a href="#">Forum</a>
+        <a href="#">Wiki</a>
+        <a href="#">Boutique</a>
+      </div>
+      <div class="footer-col">
+        <h4>Informations</h4>
+        <a href="#">Règles du serveur</a>
+        <a href="#">Candidatures Staff</a>
+        <a href="#">Contact</a>
+        <a href="#">Mentions légales</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2026 Empire Orion — Tous droits réservés</div>
+      <div class="footer-socials">
+        <div class="social-btn" title="Discord"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M13 3Q11 2 9 2L8.7 2.7Q7 2.4 5.3 2.7L5 2Q3 2 1 4L0 11Q2 13 4 13L5 12Q6 12.5 8 12.5Q10 12.5 11 12L12 13Q14 13 16 11Z" stroke="#c9a84c" stroke-width="1" fill="none"/><circle cx="6" cy="8" r="1.5" fill="#c9a84c"/><circle cx="10" cy="8" r="1.5" fill="#c9a84c"/></svg></div>
+        <div class="social-btn" title="Steam"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="#c9a84c" stroke-width="1"/><circle cx="8" cy="8" r="3" stroke="#8b6914" stroke-width="1"/><circle cx="8" cy="8" r="1" fill="#c9a84c"/></svg></div>
+        <div class="social-btn" title="YouTube"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><polygon points="5,3 13,8 5,13" stroke="#c9a84c" stroke-width="1" stroke-linejoin="round" fill="none"/></svg></div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<div id="toast">✓ IP copiée !</div>
+
+<script>
+// Étoiles
+const canvas = document.getElementById('stars-canvas');
+const ctx = canvas.getContext('2d');
+function resizeCanvas() {
+  canvas.width = canvas.offsetWidth;
+  canvas.height = canvas.offsetHeight;
+  drawStars();
+}
+function drawStars() {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  for(let i=0;i<200;i++){
+    const x=Math.random()*canvas.width;
+    const y=Math.random()*canvas.height*0.8;
+    const r=Math.random()*1.5+0.3;
+    const op=Math.random()*0.7+0.2;
+    ctx.beginPath();
+    ctx.arc(x,y,r,0,Math.PI*2);
+    ctx.fillStyle=`rgba(255,255,220,${op})`;
+    ctx.fill();
+  }
+}
+window.addEventListener('resize',resizeCanvas);
+resizeCanvas();
+
+// Nav scroll
+window.addEventListener('scroll',()=>{
+  const nb=document.getElementById('navbar');
+  if(window.scrollY>50){nb.style.background='rgba(13,10,7,.98)';nb.style.borderBottomColor='#4a3820';}
+  else{nb.style.background='rgba(13,10,7,.92)';nb.style.borderBottomColor='#2a1f10';}
+});
+
+// Copy IP
+function copyIp(){
+  navigator.clipboard.writeText('play.empire-orion.fr:27015').catch(()=>{});
+  const t=document.getElementById('toast');
+  t.style.display='block';
+  setTimeout(()=>t.style.display='none',2500);
+}
+
+// Menu hamburger
+function toggleMenu(){
+  const links=document.querySelector('.nav-links');
+  if(links.style.display==='flex'){links.style.display='none';}
+  else{links.style.display='flex';links.style.flexDirection='column';links.style.position='fixed';links.style.top='70px';links.style.left='0';links.style.right='0';links.style.background='rgba(13,10,7,.98)';links.style.padding='24px';links.style.gap='20px';links.style.borderBottom='1px solid #2a1f10';}
+}
+
+// Boutique tabs
+function switchShopTab(tab, el) {
+  document.querySelectorAll('.boutique-tab').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('shop-grades').style.display = 'none';
+  document.getElementById('shop-cosmetiques').style.display = 'none';
+  document.getElementById('shop-vote').style.display = 'none';
+  if (tab === 'grades') document.getElementById('shop-grades').style.display = 'grid';
+  else if (tab === 'cosmetiques') document.getElementById('shop-cosmetiques').style.display = 'grid';
+  else document.getElementById('shop-vote').style.display = 'block';
+}
+
+// Smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    const t=document.querySelector(a.getAttribute('href'));
+    if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth'});}
+  });
+});
+</script>
+</body>
+</html>
